@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+import { formatRelativeMinutes, getFirestoreDate } from '../../utils/format';
+import { useGames } from '../../features/games/hooks/useGames';
+import { usePlayers } from '../../features/players/hooks/usePlayers';
 
 const cards = [
   {
@@ -34,8 +37,89 @@ const cards = [
 ];
 
 export function HomePage() {
+  const { games, isLoading } = useGames();
+  const { players } = usePlayers();
+  const namesById = new Map(players.map((player) => [player.id, player.name]));
+  const latestOngoingGame = games
+    .filter((game) => game.status !== 'finished')
+    .sort((left, right) => {
+      const leftMs =
+        getFirestoreDate(left.updatedAt ?? left.createdAt)?.getTime() ?? 0;
+      const rightMs =
+        getFirestoreDate(right.updatedAt ?? right.createdAt)?.getTime() ?? 0;
+      return rightMs - leftMs;
+    })[0];
+
   return (
     <section className="space-y-6">
+      {latestOngoingGame ? (
+        <article className="rounded-3xl border border-ink/10 bg-ink p-6 text-white shadow-card">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/70">
+            Continuar última partida
+          </p>
+          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-3xl font-black tracking-tight">
+                Azul {latestOngoingGame.blueScore} - {latestOngoingGame.redScore} Rojo
+              </h2>
+              <p className="mt-2 text-sm text-white/80">
+                {latestOngoingGame.mode} · objetivo {latestOngoingGame.targetScore} ·{' '}
+                {formatRelativeMinutes(
+                  latestOngoingGame.updatedAt ?? latestOngoingGame.createdAt,
+                ) ?? 'actividad reciente'}
+              </p>
+              <p className="mt-2 text-sm text-white/80">
+                Azul: {latestOngoingGame.bluePlayerIds
+                  .map((playerId) => namesById.get(playerId) ?? playerId)
+                  .join(' · ')}
+              </p>
+              <p className="mt-1 text-sm text-white/80">
+                Rojo: {latestOngoingGame.redPlayerIds
+                  .map((playerId) => namesById.get(playerId) ?? playerId)
+                  .join(' · ')}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                to={`/game/${latestOngoingGame.id}`}
+                className="inline-flex rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-ink"
+              >
+                Continuar ahora
+              </Link>
+              <Link
+                to="/partidas/en-curso"
+                className="inline-flex rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white"
+              >
+                Ver todas
+              </Link>
+            </div>
+          </div>
+        </article>
+      ) : !isLoading ? (
+        <article className="rounded-3xl border border-slate-200 bg-sand p-6 shadow-card">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+            Acceso rápido
+          </p>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-black tracking-tight">
+                No hay partidas en curso
+              </h2>
+              <p className="mt-2 text-sm text-slate-700">
+                Crea una nueva y aparecerá aquí para retomarla con un toque.
+              </p>
+            </div>
+            <Link
+              to="/partidas/nueva"
+              className="inline-flex rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white"
+            >
+              Crear partida
+            </Link>
+          </div>
+        </article>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <Link

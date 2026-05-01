@@ -13,6 +13,8 @@ type RoundFormCardProps = {
   submitError: string | null;
   isSubmitting: boolean;
   editingRoundNumber: number | null;
+  projectedBlueScore: number;
+  projectedRedScore: number;
   onChange: (
     team: 'blue' | 'red',
     playerId: string,
@@ -37,6 +39,67 @@ type ThrowGroupProps = {
   ) => void;
 };
 
+function ValueControls({
+  label,
+  value,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            onChange(Math.max(0, value - 1));
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-2xl font-black text-slate-700"
+        >
+          -
+        </button>
+        <div className="flex h-12 min-w-0 flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-2xl font-black text-ink">
+          {value}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            onChange(Math.min(max, value + 1));
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-2xl font-black text-slate-700"
+        >
+          +
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {Array.from({ length: max + 1 }, (_, index) => index).map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            onClick={() => {
+              onChange(preset);
+            }}
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
+              value === preset
+                ? 'bg-ink text-white'
+                : 'border border-slate-200 bg-white text-slate-600'
+            }`}
+          >
+            {preset}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ThrowGroup({
   title,
   accentClassName,
@@ -54,6 +117,10 @@ function ThrowGroup({
       <div className="mt-4 grid gap-4">
         {inputs.map((playerThrow, index) => {
           const previewThrow = previewThrows[index];
+          const bagsUsed = playerThrow.cornholes + playerThrow.woodies;
+          const bagsRemaining = bagsPerPlayer - bagsUsed;
+          const maxCornholes = bagsPerPlayer - playerThrow.woodies;
+          const maxWoodies = bagsPerPlayer - playerThrow.cornholes;
 
           return (
             <div
@@ -65,49 +132,30 @@ function ThrowGroup({
                   {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
                 </p>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                  {bagsPerPlayer} sacos
+                  {bagsUsed}/{bagsPerPlayer} usados
                 </p>
               </div>
+              <p className="mt-2 text-sm font-semibold text-slate-600">
+                Restan {bagsRemaining} saco{bagsRemaining === 1 ? '' : 's'}
+              </p>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <label className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    Cornholes
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={playerThrow.cornholes}
-                    onChange={(event) => {
-                      onChange(
-                        playerThrow.playerId,
-                        'cornholes',
-                        Number(event.target.value),
-                      );
-                    }}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg font-bold outline-none focus:border-blueTeam"
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    Woodies
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={playerThrow.woodies}
-                    onChange={(event) => {
-                      onChange(
-                        playerThrow.playerId,
-                        'woodies',
-                        Number(event.target.value),
-                      );
-                    }}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg font-bold outline-none focus:border-blueTeam"
-                  />
-                </label>
+                <ValueControls
+                  label="Cornholes"
+                  value={playerThrow.cornholes}
+                  max={maxCornholes}
+                  onChange={(value) => {
+                    onChange(playerThrow.playerId, 'cornholes', value);
+                  }}
+                />
+                <ValueControls
+                  label="Woodies"
+                  value={playerThrow.woodies}
+                  max={maxWoodies}
+                  onChange={(value) => {
+                    onChange(playerThrow.playerId, 'woodies', value);
+                  }}
+                />
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
@@ -145,6 +193,8 @@ export function RoundFormCard({
   submitError,
   isSubmitting,
   editingRoundNumber,
+  projectedBlueScore,
+  projectedRedScore,
   onChange,
   onSubmit,
   onCancelEdit,
@@ -223,10 +273,13 @@ export function RoundFormCard({
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Cancelación
+            Marcador si guardas ahora
+          </p>
+          <p className="mt-2 text-2xl font-black text-ink">
+            {projectedBlueScore} - {projectedRedScore}
           </p>
           <p className="mt-2 text-sm font-semibold text-slate-700">
-            Solo puntúa el equipo con mayor bruto.
+            Solo puntúa el equipo con mayor bruto en la cancelación.
           </p>
         </div>
       </div>
@@ -249,7 +302,7 @@ export function RoundFormCard({
         type="button"
         onClick={onSubmit}
         disabled={isSubmitting}
-        className="mt-6 w-full rounded-3xl bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="sticky bottom-4 mt-6 w-full rounded-3xl bg-ink px-5 py-4 text-sm font-semibold text-white shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting
           ? 'Guardando ronda...'

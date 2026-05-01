@@ -176,6 +176,7 @@ export async function createRound(
     blueScore: nextGameState.blueScore,
     redScore: nextGameState.redScore,
     status: nextGameState.status,
+    updatedAt: serverTimestamp(),
     winnerTeam: nextGameState.winnerTeam ?? deleteField(),
     finishedAt:
       nextGameState.status === 'finished'
@@ -230,6 +231,7 @@ export async function updateRound(
     blueScore: nextGameState.blueScore,
     redScore: nextGameState.redScore,
     status: nextGameState.status,
+    updatedAt: serverTimestamp(),
     winnerTeam: nextGameState.winnerTeam ?? deleteField(),
     finishedAt:
       nextGameState.status === 'finished'

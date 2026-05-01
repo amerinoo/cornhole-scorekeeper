@@ -38,6 +38,7 @@ export async function createGame(input: CreateGameInput): Promise<string> {
     blueScore: 0,
     redScore: 0,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 
   return createdGame.id;

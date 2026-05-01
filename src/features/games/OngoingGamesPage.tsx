@@ -1,13 +1,28 @@
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
+import { getFirestoreDate } from '../../utils/format';
 import { usePlayers } from '../players/hooks/usePlayers';
 import { GameSummaryCard } from './components/GameSummaryCard';
 import { useGames } from './hooks/useGames';
+
+function getGameActivityMs(updatedAt: unknown, createdAt: unknown): number {
+  return (
+    getFirestoreDate(updatedAt)?.getTime() ??
+    getFirestoreDate(createdAt)?.getTime() ??
+    0
+  );
+}
 
 export function OngoingGamesPage() {
   const { games, isLoading, error } = useGames();
   const { players } = usePlayers();
   const namesById = new Map(players.map((player) => [player.id, player.name]));
-  const ongoingGames = games.filter((game) => game.status !== 'finished');
+  const ongoingGames = games
+    .filter((game) => game.status !== 'finished')
+    .sort(
+      (left, right) =>
+        getGameActivityMs(right.updatedAt, right.createdAt) -
+        getGameActivityMs(left.updatedAt, left.createdAt),
+    );
 
   return (
     <section className="space-y-6">
@@ -51,6 +66,7 @@ export function OngoingGamesPage() {
             namesById={namesById}
             actionLabel="Continuar partida"
             to={`/game/${game.id}`}
+            badgeLabel={ongoingGames[0]?.id === game.id ? 'Más reciente' : undefined}
           />
         ))}
       </div>

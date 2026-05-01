@@ -5,7 +5,7 @@ export function formatDate(value: Date): string {
   }).format(value);
 }
 
-export function tryFormatFirestoreDate(value: unknown): string | null {
+export function getFirestoreDate(value: unknown): Date | null {
   if (!value || typeof value !== 'object') {
     return null;
   }
@@ -20,7 +20,40 @@ export function tryFormatFirestoreDate(value: unknown): string | null {
     return null;
   }
 
-  return formatDate(candidate.toDate() as Date);
+  return candidate.toDate() as Date;
+}
+
+export function tryFormatFirestoreDate(value: unknown): string | null {
+  const date = getFirestoreDate(value);
+  return date ? formatDate(date) : null;
+}
+
+export function formatRelativeMinutes(value: unknown): string | null {
+  const date = getFirestoreDate(value);
+
+  if (!date) {
+    return null;
+  }
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.max(0, Math.floor(diffMs / 60000));
+
+  if (diffMinutes < 1) {
+    return 'hace menos de 1 min';
+  }
+
+  if (diffMinutes < 60) {
+    return `hace ${diffMinutes} min`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `hace ${diffHours} h`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `hace ${diffDays} d`;
 }
 
 export function formatPercent(value: number): string {

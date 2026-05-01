@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import type { Game, Round } from '../../models';
-import { calculateRound, validateRoundInput } from '../../utils/scoring';
+import { calculateRound, getBagsPerPlayer, validateRoundInput } from '../../utils/scoring';
 import { usePlayers } from '../players/hooks/usePlayers';
 import { RoundFormCard } from './components/RoundFormCard';
 import { RoundsHistoryCard } from './components/RoundsHistoryCard';
@@ -123,21 +123,27 @@ export function GamePage() {
     field: 'cornholes' | 'woodies',
     value: number,
   ) {
-    const sanitizedValue = sanitizeThrowValue(value);
+    const bagsPerPlayer = game ? getBagsPerPlayer(game.mode) : 0;
 
     setLocalValidationErrors([]);
     roundActions.clearError();
     setFormState((currentState) => {
-      const nextThrows = (
-        team === 'blue' ? currentState.blueThrows : currentState.redThrows
-      ).map((playerThrow) =>
-        playerThrow.playerId === playerId
-          ? {
-              ...playerThrow,
-              [field]: sanitizedValue,
-            }
-          : playerThrow,
-      );
+      const currentThrows =
+        team === 'blue' ? currentState.blueThrows : currentState.redThrows;
+      const nextThrows = currentThrows.map((playerThrow) => {
+        if (playerThrow.playerId !== playerId) {
+          return playerThrow;
+        }
+
+        const otherField = field === 'cornholes' ? 'woodies' : 'cornholes';
+        const maxAllowed = Math.max(0, bagsPerPlayer - playerThrow[otherField]);
+        const sanitizedValue = Math.min(sanitizeThrowValue(value), maxAllowed);
+
+        return {
+          ...playerThrow,
+          [field]: sanitizedValue,
+        };
+      });
 
       return team === 'blue'
         ? {
@@ -224,7 +230,7 @@ export function GamePage() {
     <section className="space-y-6">
       <FirebaseStatusBanner />
 
-      <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+      <article className="sticky top-4 z-20 rounded-3xl border border-white/70 bg-white/95 p-6 shadow-card backdrop-blur">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -238,6 +244,10 @@ export function GamePage() {
               <span className="font-semibold">{game.targetScore}</span>
             </p>
             <p className="mt-1 text-sm text-slate-600">{winnerLabel}</p>
+            <p className="mt-1 text-sm font-semibold text-slate-700">
+              Si guardas esta ronda: {game.blueScore + preview.blueNetScore} -{' '}
+              {game.redScore + preview.redNetScore}
+            </p>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
@@ -311,6 +321,8 @@ export function GamePage() {
         submitError={roundActions.error}
         isSubmitting={roundActions.isSubmitting}
         editingRoundNumber={editingRound?.roundNumber ?? null}
+        projectedBlueScore={game.blueScore + preview.blueNetScore}
+        projectedRedScore={game.redScore + preview.redNetScore}
         onChange={handleThrowChange}
         onSubmit={() => {
           void handleSubmitRound();

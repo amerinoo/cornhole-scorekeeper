@@ -17,6 +17,7 @@ export type Game = {
   redScore: number;
   winnerTeam?: TeamColor;
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
   finishedAt?: Timestamp;
 };
 
