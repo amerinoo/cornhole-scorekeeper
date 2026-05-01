@@ -230,24 +230,41 @@ export function GamePage() {
     <section className="space-y-6">
       <FirebaseStatusBanner />
 
-      <article className="sticky top-4 z-20 rounded-3xl border border-white/70 bg-white/95 p-6 shadow-card backdrop-blur">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Partida en tiempo real
+      <article className="sticky top-4 z-20 rounded-3xl border border-white/70 bg-white/95 p-4 shadow-card backdrop-blur sm:p-6">
+        <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
+          <div className="rounded-3xl bg-blueTeam p-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
+              Equipo Azul
             </p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight">
-              Azul {game.blueScore} - {game.redScore} Rojo
-            </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Estado: <span className="font-semibold">{game.status}</span> · Objetivo{' '}
-              <span className="font-semibold">{game.targetScore}</span>
+            <p className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+              {game.blueScore}
             </p>
-            <p className="mt-1 text-sm text-slate-600">{winnerLabel}</p>
-            <p className="mt-1 text-sm font-semibold text-slate-700">
-              Si guardas esta ronda: {game.blueScore + preview.blueNetScore} -{' '}
+          </div>
+
+          <div className="flex items-center justify-center">
+            <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-lg font-black tracking-[0.2em] text-slate-500 sm:px-5 sm:text-xl">
+              VS
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-redTeam p-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
+              Equipo Rojo
+            </p>
+            <p className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+              {game.redScore}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-slate-600">
+            <span>Objetivo {game.targetScore}</span>
+            <span>{winnerLabel}</span>
+            <span>
+              Si guardas: {game.blueScore + preview.blueNetScore} -{' '}
               {game.redScore + preview.redNetScore}
-            </p>
+            </span>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">

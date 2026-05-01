@@ -55,38 +55,18 @@ function ValueControls({
       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {label}
       </span>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            onChange(Math.max(0, value - 1));
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-2xl font-black text-slate-700"
-        >
-          -
-        </button>
-        <div className="flex h-12 min-w-0 flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-2xl font-black text-ink">
-          {value}
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            onChange(Math.min(max, value + 1));
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-2xl font-black text-slate-700"
-        >
-          +
-        </button>
+      <div className="flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-2xl font-black text-ink">
+        {value}
       </div>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: max + 1 }, (_, index) => index).map((preset) => (
+        {Array.from({ length: max }, (_, index) => index + 1).map((preset) => (
           <button
             key={preset}
             type="button"
             onClick={() => {
               onChange(preset);
             }}
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black ${
               value === preset
                 ? 'bg-ink text-white'
                 : 'border border-slate-200 bg-white text-slate-600'
@@ -95,6 +75,19 @@ function ValueControls({
             {preset}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => {
+            onChange(0);
+          }}
+          className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] ${
+            value === 0
+              ? 'bg-slate-700 text-white'
+              : 'border border-slate-200 bg-white text-slate-600'
+          }`}
+        >
+          Limpiar
+        </button>
       </div>
     </div>
   );
@@ -118,7 +111,6 @@ function ThrowGroup({
         {inputs.map((playerThrow, index) => {
           const previewThrow = previewThrows[index];
           const bagsUsed = playerThrow.cornholes + playerThrow.woodies;
-          const bagsRemaining = bagsPerPlayer - bagsUsed;
           const maxCornholes = bagsPerPlayer - playerThrow.woodies;
           const maxWoodies = bagsPerPlayer - playerThrow.cornholes;
 
@@ -135,9 +127,6 @@ function ThrowGroup({
                   {bagsUsed}/{bagsPerPlayer} usados
                 </p>
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-600">
-                Restan {bagsRemaining} saco{bagsRemaining === 1 ? '' : 's'}
-              </p>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <ValueControls
