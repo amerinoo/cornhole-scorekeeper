@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import type { Game, Round } from '../../models';
 import { calculateRound, getBagsPerPlayer, validateRoundInput } from '../../utils/scoring';
@@ -231,33 +231,33 @@ export function GamePage() {
       <FirebaseStatusBanner />
 
       <article className="sticky top-4 z-20 rounded-3xl border border-white/70 bg-white/95 p-4 shadow-card backdrop-blur sm:p-6">
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-          <div className="rounded-3xl bg-blueTeam p-5 text-white">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-3">
+          <div className="rounded-3xl bg-blueTeam p-4 text-white sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
               Equipo Azul
             </p>
-            <p className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+            <p className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
               {game.blueScore}
             </p>
           </div>
 
           <div className="flex items-center justify-center">
-            <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-lg font-black tracking-[0.2em] text-slate-500 sm:px-5 sm:text-xl">
+            <div className="rounded-full border border-slate-200 bg-white px-3 py-2 text-base font-black tracking-[0.2em] text-slate-500 sm:px-5 sm:text-xl">
               VS
             </div>
           </div>
 
-          <div className="rounded-3xl bg-redTeam p-5 text-white">
+          <div className="rounded-3xl bg-redTeam p-4 text-white sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
               Equipo Rojo
             </p>
-            <p className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+            <p className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
               {game.redScore}
             </p>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mt-4">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-slate-600">
             <span>Objetivo {game.targetScore}</span>
             <span>{winnerLabel}</span>
@@ -265,21 +265,6 @@ export function GamePage() {
               Si guardas: {game.blueScore + preview.blueNetScore} -{' '}
               {game.redScore + preview.redNetScore}
             </span>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              to={`/game/${game.id}/display`}
-              className="inline-flex rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
-            >
-              Abrir display
-            </Link>
-            <Link
-              to="/partidas/nueva"
-              className="inline-flex rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
-            >
-              Crear otra partida
-            </Link>
           </div>
         </div>
       </article>
