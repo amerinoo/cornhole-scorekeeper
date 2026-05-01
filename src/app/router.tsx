@@ -53,6 +53,16 @@ function withSuspense(element: ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
+function getRouterBasename(): string {
+  const baseUrl = import.meta.env.BASE_URL ?? '/';
+
+  if (baseUrl === '/') {
+    return '/';
+  }
+
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/game/:gameId/display',
@@ -96,4 +106,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+], {
+  basename: getRouterBasename(),
+});
