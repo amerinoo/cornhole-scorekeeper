@@ -1,0 +1,262 @@
+import type { Game, PlayerThrowInput, RoundCalculation } from '../../../models';
+import { getBagsPerPlayer } from '../../../utils/scoring';
+
+type RoundFormCardProps = {
+  game: Game;
+  namesById: Map<string, string>;
+  formState: {
+    blueThrows: PlayerThrowInput[];
+    redThrows: PlayerThrowInput[];
+  };
+  preview: RoundCalculation;
+  validationErrors: string[];
+  submitError: string | null;
+  isSubmitting: boolean;
+  editingRoundNumber: number | null;
+  onChange: (
+    team: 'blue' | 'red',
+    playerId: string,
+    field: 'cornholes' | 'woodies',
+    value: number,
+  ) => void;
+  onSubmit: () => void;
+  onCancelEdit: () => void;
+};
+
+type ThrowGroupProps = {
+  title: string;
+  accentClassName: string;
+  inputs: PlayerThrowInput[];
+  previewThrows: RoundCalculation['blueThrows'];
+  bagsPerPlayer: number;
+  namesById: Map<string, string>;
+  onChange: (
+    playerId: string,
+    field: 'cornholes' | 'woodies',
+    value: number,
+  ) => void;
+};
+
+function ThrowGroup({
+  title,
+  accentClassName,
+  inputs,
+  previewThrows,
+  bagsPerPlayer,
+  namesById,
+  onChange,
+}: ThrowGroupProps) {
+  return (
+    <article className={`rounded-3xl border p-5 ${accentClassName}`}>
+      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+        {title}
+      </p>
+      <div className="mt-4 grid gap-4">
+        {inputs.map((playerThrow, index) => {
+          const previewThrow = previewThrows[index];
+
+          return (
+            <div
+              key={playerThrow.playerId}
+              className="rounded-2xl border border-white/80 bg-white/80 p-4"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-base font-bold text-ink">
+                  {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {bagsPerPlayer} sacos
+                </p>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <label className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Cornholes
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={playerThrow.cornholes}
+                    onChange={(event) => {
+                      onChange(
+                        playerThrow.playerId,
+                        'cornholes',
+                        Number(event.target.value),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg font-bold outline-none focus:border-blueTeam"
+                  />
+                </label>
+                <label className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Woodies
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={playerThrow.woodies}
+                    onChange={(event) => {
+                      onChange(
+                        playerThrow.playerId,
+                        'woodies',
+                        Number(event.target.value),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg font-bold outline-none focus:border-blueTeam"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Misses
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-ink">
+                    {previewThrow?.misses ?? '-'}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Puntos brutos
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-ink">
+                    {previewThrow?.rawScore ?? '-'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+}
+
+export function RoundFormCard({
+  game,
+  namesById,
+  formState,
+  preview,
+  validationErrors,
+  submitError,
+  isSubmitting,
+  editingRoundNumber,
+  onChange,
+  onSubmit,
+  onCancelEdit,
+}: RoundFormCardProps) {
+  const bagsPerPlayer = getBagsPerPlayer(game.mode);
+  const heading = editingRoundNumber
+    ? `Editar ronda ${editingRoundNumber}`
+    : 'Registrar nueva ronda';
+
+  return (
+    <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Ronda
+          </p>
+          <h3 className="mt-2 text-2xl font-black tracking-tight">{heading}</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            Cada jugador lanza {bagsPerPlayer} saco{bagsPerPlayer === 1 ? '' : 's'}
+            {' '}en modo {game.mode}. Los misses se calculan automáticamente.
+          </p>
+        </div>
+
+        {editingRoundNumber ? (
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="inline-flex rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
+          >
+            Cancelar edición
+          </button>
+        ) : null}
+      </div>
+
+      <div className="mt-6 grid gap-4 xl:grid-cols-2">
+        <ThrowGroup
+          title="Equipo Azul"
+          accentClassName="border-blueTeam/30 bg-blueTeam/5"
+          inputs={formState.blueThrows}
+          previewThrows={preview.blueThrows}
+          bagsPerPlayer={bagsPerPlayer}
+          namesById={namesById}
+          onChange={(playerId, field, value) => {
+            onChange('blue', playerId, field, value);
+          }}
+        />
+        <ThrowGroup
+          title="Equipo Rojo"
+          accentClassName="border-redTeam/30 bg-redTeam/5"
+          inputs={formState.redThrows}
+          previewThrows={preview.redThrows}
+          bagsPerPlayer={bagsPerPlayer}
+          namesById={namesById}
+          onChange={(playerId, field, value) => {
+            onChange('red', playerId, field, value);
+          }}
+        />
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Azul bruto / neto
+          </p>
+          <p className="mt-2 text-2xl font-black text-blueTeam">
+            {preview.blueRawScore} / {preview.blueNetScore}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Rojo bruto / neto
+          </p>
+          <p className="mt-2 text-2xl font-black text-redTeam">
+            {preview.redRawScore} / {preview.redNetScore}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Cancelación
+          </p>
+          <p className="mt-2 text-sm font-semibold text-slate-700">
+            Solo puntúa el equipo con mayor bruto.
+          </p>
+        </div>
+      </div>
+
+      {validationErrors.length > 0 ? (
+        <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {validationErrors.map((message) => (
+            <p key={message}>{message}</p>
+          ))}
+        </div>
+      ) : null}
+
+      {submitError ? (
+        <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {submitError}
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onSubmit}
+        disabled={isSubmitting}
+        className="mt-6 w-full rounded-3xl bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isSubmitting
+          ? 'Guardando ronda...'
+          : editingRoundNumber
+            ? 'Guardar cambios de la ronda'
+            : 'Guardar ronda'}
+      </button>
+    </article>
+  );
+}

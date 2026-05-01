@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cornhole Scorekeeper</title>
+    <script>
+      (function () {
+        var basePath = '/cornhole-scorekeeper';
+        var currentPath = window.location.pathname;
+        var routePath = currentPath.indexOf(basePath) === 0
+          ? currentPath.slice(basePath.length)
+          : currentPath;
+        var search = window.location.search ? window.location.search.slice(1) : '';
+        var target =
+          basePath +
+          '/?p=' +
+          encodeURIComponent(routePath || '/') +
+          (search ? '&q=' + encodeURIComponent(search) : '') +
+          window.location.hash;
+
+        window.location.replace(target);
+      })();
+    </script>
+  </head>
+  <body></body>
+  </html>
