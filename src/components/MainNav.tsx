@@ -15,7 +15,7 @@ export function MainNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="relative">
+    <nav className="relative z-50">
       <div className="flex items-center justify-end lg:hidden">
         <button
           type="button"
@@ -35,7 +35,7 @@ export function MainNav() {
       </div>
 
       {isOpen ? (
-        <div className="absolute right-0 top-14 z-30 w-64 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-xl lg:hidden">
+        <div className="absolute right-0 top-14 z-50 w-64 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-xl lg:hidden">
           <div className="grid gap-1">
             {items.map((item) => (
               <NavLink
