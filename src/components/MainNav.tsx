@@ -11,11 +11,22 @@ const items = [
   { to: '/reglas', label: 'Reglas' },
 ];
 
-export function MainNav() {
+export function MainNav({
+  mobileOnly = false,
+  desktopOnly = false,
+}: {
+  mobileOnly?: boolean;
+  desktopOnly?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
+  const navVisibilityClassName = mobileOnly
+    ? 'lg:hidden'
+    : desktopOnly
+      ? 'hidden lg:block'
+      : '';
 
   return (
-    <nav className="relative z-50">
+    <nav className={`relative z-50 ${navVisibilityClassName}`}>
       <div className="flex items-center justify-end lg:hidden">
         <button
           type="button"
