@@ -6,6 +6,7 @@ type RoundsHistoryCardProps = {
   rounds: Round[];
   namesById: Map<string, string>;
   editingRoundId: string | null;
+  isEditable: boolean;
   onEdit: (round: Round) => void;
 };
 
@@ -13,6 +14,7 @@ export function RoundsHistoryCard({
   rounds,
   namesById,
   editingRoundId,
+  isEditable,
   onEdit,
 }: RoundsHistoryCardProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -117,19 +119,25 @@ export function RoundsHistoryCard({
                         </p>
                       ) : null}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onEdit(round);
-                      }}
-                      className={`rounded-2xl px-4 py-2 text-sm font-semibold ${
-                        editingRoundId === round.id
-                          ? 'bg-ink text-white'
-                          : 'border border-slate-200 bg-white text-slate-700'
-                      }`}
-                    >
-                      {editingRoundId === round.id ? 'Editando' : 'Editar ronda'}
-                    </button>
+                    {isEditable ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onEdit(round);
+                        }}
+                        className={`rounded-2xl px-4 py-2 text-sm font-semibold ${
+                          editingRoundId === round.id
+                            ? 'bg-ink text-white'
+                            : 'border border-slate-200 bg-white text-slate-700'
+                        }`}
+                      >
+                        {editingRoundId === round.id ? 'Editando' : 'Editar ronda'}
+                      </button>
+                    ) : (
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        Solo lectura
+                      </span>
+                    )}
                   </div>
 
                   <div className="mt-4 grid gap-4 lg:grid-cols-2">

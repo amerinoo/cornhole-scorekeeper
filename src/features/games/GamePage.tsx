@@ -200,7 +200,7 @@ export function GamePage() {
   }
 
   async function handleSubmitRound() {
-    if (!game) {
+    if (!game || game.status === 'finished') {
       return;
     }
 
@@ -222,6 +222,10 @@ export function GamePage() {
   }
 
   function handleEditRound(round: Round) {
+    if (!game || game.status === 'finished') {
+      return;
+    }
+
     setEditingRoundId(round.id);
     setLocalValidationErrors([]);
     roundActions.clearError();
@@ -267,6 +271,7 @@ export function GamePage() {
       : game.winnerTeam === 'red'
         ? 'Gana Equipo Rojo'
         : 'Sin ganador todavía';
+  const isGameEditable = game.status !== 'finished';
   const projectedBlueScore = game.blueScore + preview.blueNetScore;
   const projectedRedScore = game.redScore + preview.redNetScore;
   const activeRoundNumber = editingRound ? editingRound.roundNumber : nextRoundNumber(rounds);
@@ -320,25 +325,31 @@ export function GamePage() {
         </div>
       </section>
 
-      <RoundFormCard
-        game={game}
-        namesById={namesById}
-        formState={formState}
-        preview={preview}
-        validationErrors={localValidationErrors}
-        submitError={roundActions.error}
-        isSubmitting={roundActions.isSubmitting}
-        editingRoundNumber={editingRound?.roundNumber ?? null}
-        projectedBlueScore={projectedBlueScore}
-        projectedRedScore={projectedRedScore}
-        onChange={handleThrowChange}
-        onSubmit={() => {
-          void handleSubmitRound();
-        }}
-        onCancelEdit={() => {
-          resetForm(game);
-        }}
-      />
+      {isGameEditable ? (
+        <RoundFormCard
+          game={game}
+          namesById={namesById}
+          formState={formState}
+          preview={preview}
+          validationErrors={localValidationErrors}
+          submitError={roundActions.error}
+          isSubmitting={roundActions.isSubmitting}
+          editingRoundNumber={editingRound?.roundNumber ?? null}
+          projectedBlueScore={projectedBlueScore}
+          projectedRedScore={projectedRedScore}
+          onChange={handleThrowChange}
+          onSubmit={() => {
+            void handleSubmitRound();
+          }}
+          onCancelEdit={() => {
+            resetForm(game);
+          }}
+        />
+      ) : (
+        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm font-medium text-slate-600">
+          La partida está finalizada. El historial queda en modo solo lectura.
+        </article>
+      )}
 
       {areRoundsLoading ? (
         <article className="rounded-3xl border border-white/70 bg-white/90 p-6 text-sm text-slate-600 shadow-card backdrop-blur">
@@ -349,6 +360,7 @@ export function GamePage() {
           rounds={rounds}
           namesById={namesById}
           editingRoundId={editingRoundId}
+          isEditable={isGameEditable}
           onEdit={handleEditRound}
         />
       )}
