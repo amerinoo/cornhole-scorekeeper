@@ -144,38 +144,38 @@ export function RulesPage() {
           Se comparan los puntos brutos de ambos equipos y solo suma la diferencia.
         </p>
 
-        <div className="mt-5 overflow-x-auto">
-          <div className="flex min-w-[44rem] items-stretch gap-3 rounded-[1.8rem] bg-white p-4 ring-1 ring-slate-200">
-            <div className="flex min-w-[9rem] flex-1 flex-col justify-center rounded-[1.5rem] bg-blueTeam/8 px-5 py-4 text-center">
+        <div className="mt-5">
+          <div className="grid grid-cols-[1fr_auto_1fr_auto_1.1fr] items-stretch gap-2 rounded-[1.6rem] bg-white p-3 ring-1 ring-slate-200">
+            <div className="flex flex-col justify-center rounded-[1.25rem] bg-blueTeam/8 px-3 py-3 text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/70">
                 Azul
               </p>
-              <p className="mt-2 text-4xl font-black text-blueTeam">6</p>
-              <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
+              <p className="mt-1 text-3xl font-black text-blueTeam sm:text-4xl">6</p>
+              <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
-            <div className="flex items-center justify-center px-1">
-              <p className="text-3xl font-black text-slate-300">−</p>
+            <div className="flex items-center justify-center">
+              <p className="text-2xl font-black text-slate-300 sm:text-3xl">−</p>
             </div>
 
-            <div className="flex min-w-[9rem] flex-1 flex-col justify-center rounded-[1.5rem] bg-redTeam/8 px-5 py-4 text-center">
+            <div className="flex flex-col justify-center rounded-[1.25rem] bg-redTeam/8 px-3 py-3 text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/70">
                 Rojo
               </p>
-              <p className="mt-2 text-4xl font-black text-redTeam">4</p>
-              <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
+              <p className="mt-1 text-3xl font-black text-redTeam sm:text-4xl">4</p>
+              <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
-            <div className="flex items-center justify-center px-1">
-              <p className="text-3xl font-black text-slate-300">=</p>
+            <div className="flex items-center justify-center">
+              <p className="text-2xl font-black text-slate-300 sm:text-3xl">=</p>
             </div>
 
-            <div className="flex min-w-[12rem] flex-[1.15] flex-col justify-center rounded-[1.5rem] bg-blueTeam px-5 py-4 text-center text-white">
+            <div className="flex flex-col justify-center rounded-[1.25rem] bg-blueTeam px-3 py-3 text-center text-white">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
                 Resultado
               </p>
-              <p className="mt-2 text-3xl font-black">Azul +2</p>
-              <p className="mt-1 text-sm font-medium text-white/80">
+              <p className="mt-1 text-xl font-black sm:text-2xl">Azul +2</p>
+              <p className="mt-1 text-xs font-medium text-white/80">
                 Rojo no suma
               </p>
             </div>
