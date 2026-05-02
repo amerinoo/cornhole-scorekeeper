@@ -106,10 +106,8 @@ function ThrowGroup({
       <div className="mt-4 grid gap-4">
         {inputs.map((playerThrow, index) => {
           const previewThrow = previewThrows[index];
-          const bagsUsed = playerThrow.cornholes + playerThrow.woodies;
           const maxCornholes = bagsPerPlayer - playerThrow.woodies;
           const maxWoodies = bagsPerPlayer - playerThrow.cornholes;
-          const misses = previewThrow?.misses ?? Math.max(0, bagsPerPlayer - bagsUsed);
 
           return (
             <div
@@ -121,7 +119,7 @@ function ThrowGroup({
                   {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
                 </p>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                  {bagsUsed}/{bagsPerPlayer} usados
+                  Bruto {previewThrow?.rawScore ?? 0}
                 </p>
               </div>
 
@@ -143,13 +141,6 @@ function ThrowGroup({
                   onChange={(value) => {
                     onChange(playerThrow.playerId, 'woodies', value);
                   }}
-                />
-                <ValueControls
-                  label="Misses"
-                  value={misses}
-                  total={bagsPerPlayer}
-                  maxSelectable={bagsPerPlayer}
-                  interactive={false}
                 />
               </div>
             </div>
@@ -189,8 +180,7 @@ export function RoundFormCard({
           </p>
           <h3 className="mt-2 text-2xl font-black tracking-tight">{heading}</h3>
           <p className="mt-2 text-sm text-slate-600">
-            Cada jugador lanza {bagsPerPlayer} saco{bagsPerPlayer === 1 ? '' : 's'}
-            {' '}en modo {game.mode}. Los misses se calculan automáticamente.
+            Cada jugador lanza {bagsPerPlayer} saco{bagsPerPlayer === 1 ? '' : 's'} en modo {game.mode}.
           </p>
         </div>
 
@@ -233,24 +223,18 @@ export function RoundFormCard({
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Azul bruto / neto / misses
+            Azul bruto / neto
           </p>
           <p className="mt-2 text-2xl font-black text-blueTeam">
             {preview.blueRawScore} / {preview.blueNetScore}
           </p>
-          <p className="mt-2 text-sm font-semibold text-slate-700">
-            Misses {preview.blueThrows.reduce((sum, playerThrow) => sum + playerThrow.misses, 0)}
-          </p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Rojo bruto / neto / misses
+            Rojo bruto / neto
           </p>
           <p className="mt-2 text-2xl font-black text-redTeam">
             {preview.redRawScore} / {preview.redNetScore}
-          </p>
-          <p className="mt-2 text-sm font-semibold text-slate-700">
-            Misses {preview.redThrows.reduce((sum, playerThrow) => sum + playerThrow.misses, 0)}
           </p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
