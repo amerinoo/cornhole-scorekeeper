@@ -145,8 +145,8 @@ export function RulesPage() {
         </p>
 
         <div className="mt-5">
-          <div className="grid grid-cols-[1fr_auto_1fr_auto_0.95fr] items-stretch gap-1.5 rounded-[1.4rem] bg-white p-2.5 ring-1 ring-slate-200">
-            <div className="flex flex-col justify-center rounded-[1.1rem] bg-blueTeam/8 px-2.5 py-2 text-center">
+          <div className="flex items-center justify-center gap-1 rounded-[1.4rem] bg-white p-2.5 ring-1 ring-slate-200">
+            <div className="flex w-[5.6rem] flex-col justify-center rounded-[1.1rem] bg-blueTeam/8 px-2 py-2 text-center sm:w-[6.1rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/70">
                 Azul
               </p>
@@ -154,11 +154,11 @@ export function RulesPage() {
               <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
-            <div className="flex items-center justify-center">
+            <div className="flex w-4 items-center justify-center sm:w-5">
               <p className="text-2xl font-black text-slate-300 sm:text-3xl">−</p>
             </div>
 
-            <div className="flex flex-col justify-center rounded-[1.1rem] bg-redTeam/8 px-2.5 py-2 text-center">
+            <div className="flex w-[5.6rem] flex-col justify-center rounded-[1.1rem] bg-redTeam/8 px-2 py-2 text-center sm:w-[6.1rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/70">
                 Rojo
               </p>
@@ -166,11 +166,11 @@ export function RulesPage() {
               <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
-            <div className="flex items-center justify-center">
+            <div className="flex w-4 items-center justify-center sm:w-5">
               <p className="text-2xl font-black text-slate-300 sm:text-3xl">=</p>
             </div>
 
-            <div className="flex flex-col justify-center rounded-[0.95rem] bg-blueTeam px-1.5 py-1.5 text-center text-white">
+            <div className="flex w-[6.2rem] flex-col justify-center rounded-[0.95rem] bg-blueTeam px-1.5 py-1.5 text-center text-white sm:w-[6.8rem]">
               <p className="text-base font-black sm:text-lg">Azul +2</p>
               <p className="mt-0.5 text-[10px] font-medium text-white/80">
                 Rojo no suma
