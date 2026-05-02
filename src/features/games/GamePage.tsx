@@ -277,9 +277,9 @@ export function GamePage() {
   const activeRoundNumber = editingRound ? editingRound.roundNumber : nextRoundNumber(rounds);
   const scoringTeamLabel =
     preview.blueNetScore > 0
-      ? `Puntúa Azul ${preview.blueNetScore}`
+      ? `Azul +${preview.blueNetScore}`
       : preview.redNetScore > 0
-        ? `Puntúa Rojo ${preview.redNetScore}`
+        ? `Rojo +${preview.redNetScore}`
         : 'Empate 0';
   const scoringTeamClassName =
     preview.blueNetScore > 0
