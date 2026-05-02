@@ -144,9 +144,9 @@ export function RulesPage() {
           Se comparan los puntos brutos de ambos equipos y solo suma la diferencia.
         </p>
 
-        <div className="mt-5 rounded-[1.8rem] bg-white p-4 ring-1 ring-slate-200">
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1.15fr] sm:items-center">
-            <div className="rounded-[1.5rem] bg-blueTeam/8 px-5 py-4 text-center">
+        <div className="mt-5 overflow-x-auto">
+          <div className="flex min-w-[44rem] items-stretch gap-3 rounded-[1.8rem] bg-white p-4 ring-1 ring-slate-200">
+            <div className="flex min-w-[9rem] flex-1 flex-col justify-center rounded-[1.5rem] bg-blueTeam/8 px-5 py-4 text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/70">
                 Azul
               </p>
@@ -154,9 +154,11 @@ export function RulesPage() {
               <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
             </div>
 
-            <p className="text-center text-3xl font-black text-slate-300">−</p>
+            <div className="flex items-center justify-center px-1">
+              <p className="text-3xl font-black text-slate-300">−</p>
+            </div>
 
-            <div className="rounded-[1.5rem] bg-redTeam/8 px-5 py-4 text-center">
+            <div className="flex min-w-[9rem] flex-1 flex-col justify-center rounded-[1.5rem] bg-redTeam/8 px-5 py-4 text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/70">
                 Rojo
               </p>
@@ -164,9 +166,11 @@ export function RulesPage() {
               <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
             </div>
 
-            <p className="text-center text-3xl font-black text-slate-300">=</p>
+            <div className="flex items-center justify-center px-1">
+              <p className="text-3xl font-black text-slate-300">=</p>
+            </div>
 
-            <div className="rounded-[1.5rem] bg-blueTeam px-5 py-4 text-center text-white">
+            <div className="flex min-w-[12rem] flex-[1.15] flex-col justify-center rounded-[1.5rem] bg-blueTeam px-5 py-4 text-center text-white">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
                 Resultado
               </p>
