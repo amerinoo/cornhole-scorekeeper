@@ -172,11 +172,11 @@ export function RulesPage() {
 
             <div className="flex w-[6.2rem] flex-col justify-center rounded-[0.95rem] bg-blueTeam px-1.5 py-1.5 text-center text-white sm:w-[6.8rem]">
               <p className="text-base font-black sm:text-lg">Azul +2</p>
-              <p className="mt-0.5 text-[10px] font-medium text-white/80">
-                Rojo no suma
-              </p>
             </div>
           </div>
+          <p className="mt-2 text-center text-xs font-medium text-slate-600">
+            Rojo no suma
+          </p>
         </div>
       </article>
     </section>
