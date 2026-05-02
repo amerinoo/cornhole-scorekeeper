@@ -55,39 +55,31 @@ function ValueControls({
       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {label}
       </span>
-      <div className="flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-2xl font-black text-ink">
-        {value}
-      </div>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: max }, (_, index) => index + 1).map((preset) => (
+        {Array.from({ length: 4 }, (_, index) => index + 1).map((preset) => {
+          const isSelected = value === preset;
+          const isDisabled = preset > max;
+
+          return (
           <button
             key={preset}
             type="button"
+            disabled={isDisabled}
             onClick={() => {
-              onChange(preset);
+              onChange(isSelected ? 0 : preset);
             }}
-            className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black ${
-              value === preset
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black transition ${
+              isSelected
                 ? 'bg-ink text-white'
-                : 'border border-slate-200 bg-white text-slate-600'
+                : isDisabled
+                  ? 'border border-slate-200 bg-slate-100 text-slate-300'
+                  : 'border border-slate-200 bg-white text-slate-700'
             }`}
           >
             {preset}
           </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => {
-            onChange(0);
-          }}
-          className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] ${
-            value === 0
-              ? 'bg-slate-700 text-white'
-              : 'border border-slate-200 bg-white text-slate-600'
-          }`}
-        >
-          Limpiar
-        </button>
+          );
+        })}
       </div>
     </div>
   );
