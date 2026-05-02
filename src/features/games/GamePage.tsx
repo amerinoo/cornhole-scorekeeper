@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import type { Game, Round } from '../../models';
+import { formatPercent } from '../../utils/format';
 import { calculateRound, getBagsPerPlayer, validateRoundInput } from '../../utils/scoring';
+import { aggregateFinishedGameStats } from '../stats/aggregation';
 import { usePlayers } from '../players/hooks/usePlayers';
 import { RoundFormCard } from './components/RoundFormCard';
 import { RoundsHistoryCard } from './components/RoundsHistoryCard';
@@ -115,6 +117,10 @@ export function GamePage() {
   const namesById = useMemo(
     () => new Map(players.map((player) => [player.id, player.name])),
     [players],
+  );
+  const finishedGameStats = useMemo(
+    () => (game ? aggregateFinishedGameStats(game, rounds, players) : null),
+    [game, players, rounds],
   );
 
   useEffect(() => {
@@ -355,13 +361,13 @@ export function GamePage() {
           namesById={namesById}
           formState={formState}
           preview={preview}
-        validationErrors={localValidationErrors}
-        submitError={roundActions.error}
-        isSubmitting={roundActions.isSubmitting}
-        editingRoundNumber={editingRound?.roundNumber ?? null}
-        onChange={handleThrowChange}
-        onSubmit={() => {
-          void handleSubmitRound();
+          validationErrors={localValidationErrors}
+          submitError={roundActions.error}
+          isSubmitting={roundActions.isSubmitting}
+          editingRoundNumber={editingRound?.roundNumber ?? null}
+          onChange={handleThrowChange}
+          onSubmit={() => {
+            void handleSubmitRound();
           }}
           onCancelEdit={() => {
             resetForm(game);
@@ -372,6 +378,142 @@ export function GamePage() {
           La partida está finalizada. El historial queda en modo solo lectura.
         </article>
       )}
+
+      {!isGameEditable && finishedGameStats ? (
+        <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Estadísticas de la partida
+              </p>
+              <h3 className="mt-1 text-xl font-black tracking-tight">
+                Resumen final
+              </h3>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+              {finishedGameStats.totalRounds} ronda
+              {finishedGameStats.totalRounds === 1 ? '' : 's'}
+            </span>
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {finishedGameStats.teams.map((team) => (
+              <div
+                key={team.teamColor}
+                className={`rounded-[1.5rem] border p-4 ${
+                  team.teamColor === 'blue'
+                    ? 'border-blueTeam/30 bg-blueTeam/5'
+                    : 'border-redTeam/30 bg-redTeam/5'
+                }`}
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <p
+                    className={`text-sm font-black uppercase tracking-[0.18em] ${
+                      team.teamColor === 'blue' ? 'text-blueTeam' : 'text-redTeam'
+                    }`}
+                  >
+                    Equipo {team.teamColor === 'blue' ? 'Azul' : 'Rojo'}
+                  </p>
+                  <p className="text-lg font-black text-ink">
+                    {team.netPoints} netos
+                  </p>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Rondas
+                    </p>
+                    <p className="mt-1 text-lg font-black text-ink">
+                      {team.roundsWon}{' '}
+                      <span className="text-sm font-semibold text-slate-500">
+                        {formatPercent(team.roundWinRate)}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Brutos
+                    </p>
+                    <p className="mt-1 text-lg font-black text-ink">{team.rawScore}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Acierto
+                    </p>
+                    <p className="mt-1 text-lg font-black text-ink">
+                      {formatPercent(team.accuracy)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                  <span>
+                    C {team.cornholes} · {formatPercent(team.cornholeRate)}
+                  </span>
+                  <span>
+                    W {team.woodies} · {formatPercent(team.woodyRate)}
+                  </span>
+                  <span>
+                    M {team.misses} · {formatPercent(team.missRate)}
+                  </span>
+                  <span>S {team.bagsThrown}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="border-b border-slate-200 text-slate-500">
+                <tr>
+                  <th className="px-2 py-2 font-semibold">Jugador</th>
+                  <th className="px-2 py-2 font-semibold">C</th>
+                  <th className="px-2 py-2 font-semibold">W</th>
+                  <th className="px-2 py-2 font-semibold">M</th>
+                  <th className="px-2 py-2 font-semibold">S</th>
+                  <th className="px-2 py-2 font-semibold">T</th>
+                  <th className="px-2 py-2 font-semibold">Acierto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {finishedGameStats.players.map((player) => (
+                  <tr key={player.playerId} className="border-b border-slate-100 last:border-0">
+                    <td className="px-2 py-2 font-semibold text-ink">
+                      <span
+                        className={player.teamColor === 'blue' ? 'text-blueTeam' : 'text-redTeam'}
+                      >
+                        {player.playerName}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-slate-700">
+                      {player.cornholes}{' '}
+                      <span className="text-xs text-slate-500">
+                        {formatPercent(player.cornholeRate)}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-slate-700">
+                      {player.woodies}{' '}
+                      <span className="text-xs text-slate-500">
+                        {formatPercent(player.woodyRate)}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-slate-700">
+                      {player.misses}{' '}
+                      <span className="text-xs text-slate-500">
+                        {formatPercent(player.missRate)}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-slate-700">{player.bagsThrown}</td>
+                    <td className="px-2 py-2 text-slate-700">{player.rawScore}</td>
+                    <td className="px-2 py-2 font-medium text-ink">
+                      {formatPercent(player.accuracy)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      ) : null}
 
       {areRoundsLoading ? (
         <article className="rounded-3xl border border-white/70 bg-white/90 p-6 text-sm text-slate-600 shadow-card backdrop-blur">

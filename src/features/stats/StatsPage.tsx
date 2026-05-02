@@ -26,8 +26,8 @@ export function StatsPage() {
           Resumen por jugador y por color
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Cornholes, woodies, misses, sacos, puntos, victorias y acierto
-          acumulado.
+          Solo cuenta partidas finalizadas, con porcentajes de cornhole, woody,
+          miss, victorias y acierto.
         </p>
       </article>
 
@@ -61,6 +61,10 @@ export function StatsPage() {
                 <p className="mt-3 text-3xl font-black text-ink">
                   {color.victories} victoria{color.victories === 1 ? '' : 's'}
                 </p>
+                <p className="mt-1 text-sm text-slate-700">
+                  Porcentaje de victoria:{' '}
+                  <span className="font-semibold">{formatPercent(color.winRate)}</span>
+                </p>
                 <p className="mt-2 text-sm text-slate-700">
                   Puntos netos acumulados: <span className="font-semibold">{color.netPoints}</span>
                 </p>
@@ -91,12 +95,32 @@ export function StatsPage() {
                   {stats.players.map((player) => (
                     <tr key={player.playerId} className="border-b border-slate-100 last:border-0">
                       <td className="px-3 py-3 font-semibold text-ink">{player.playerName}</td>
-                      <td className="px-3 py-3">{player.cornholes}</td>
-                      <td className="px-3 py-3">{player.woodies}</td>
-                      <td className="px-3 py-3">{player.misses}</td>
+                      <td className="px-3 py-3">
+                        <div className="font-medium text-ink">{player.cornholes}</div>
+                        <div className="text-xs text-slate-500">
+                          {formatPercent(player.cornholeRate)}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="font-medium text-ink">{player.woodies}</div>
+                        <div className="text-xs text-slate-500">
+                          {formatPercent(player.woodyRate)}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="font-medium text-ink">{player.misses}</div>
+                        <div className="text-xs text-slate-500">
+                          {formatPercent(player.missRate)}
+                        </div>
+                      </td>
                       <td className="px-3 py-3">{player.bagsThrown}</td>
                       <td className="px-3 py-3">{player.rawScore}</td>
-                      <td className="px-3 py-3">{player.victories}</td>
+                      <td className="px-3 py-3">
+                        <div className="font-medium text-ink">{player.victories}</div>
+                        <div className="text-xs text-slate-500">
+                          {formatPercent(player.winRate)}
+                        </div>
+                      </td>
                       <td className="px-3 py-3">{player.gamesPlayed}</td>
                       <td className="px-3 py-3">{formatPercent(player.accuracy)}</td>
                     </tr>
