@@ -118,14 +118,14 @@ function ThrowGroup({
                 <p className="text-base font-bold text-ink">
                   {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
                 </p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                  Bruto {previewThrow?.rawScore ?? 0}
-                </p>
+                <div className="min-w-12 rounded-full bg-ink px-3 py-1 text-center text-sm font-black text-white">
+                  {previewThrow?.rawScore ?? 0}
+                </div>
               </div>
 
               <div className="mt-4 space-y-3">
                 <ValueControls
-                  label="Cornholes"
+                  label="Cornholes (+3)"
                   value={playerThrow.cornholes}
                   total={bagsPerPlayer}
                   maxSelectable={maxCornholes}
@@ -134,7 +134,7 @@ function ThrowGroup({
                   }}
                 />
                 <ValueControls
-                  label="Woodies"
+                  label="Woodies (+1)"
                   value={playerThrow.woodies}
                   total={bagsPerPlayer}
                   maxSelectable={maxWoodies}
