@@ -170,12 +170,9 @@ export function RulesPage() {
               <p className="text-2xl font-black text-slate-300 sm:text-3xl">=</p>
             </div>
 
-            <div className="flex flex-col justify-center rounded-[1.1rem] bg-blueTeam px-2.5 py-2.5 text-center text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                Resultado
-              </p>
-              <p className="mt-1 text-lg font-black sm:text-xl">Azul +2</p>
-              <p className="mt-0.5 text-[11px] font-medium text-white/80">
+            <div className="flex flex-col justify-center rounded-[1rem] bg-blueTeam px-2 py-2 text-center text-white">
+              <p className="text-base font-black sm:text-lg">Azul +2</p>
+              <p className="mt-0.5 text-[10px] font-medium text-white/80">
                 Rojo no suma
               </p>
             </div>
