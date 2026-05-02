@@ -294,22 +294,27 @@ export function HomePage() {
         </article>
       </div>
 
-      <article className="rounded-[2rem] border border-slate-200 bg-sand p-5 shadow-card">
-        <div className="flex flex-wrap gap-3">
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-            1v1: 4 sacos por jugador
-          </span>
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-            2v2: 2 sacos por jugador
-          </span>
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-            4 sacos por equipo
-          </span>
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-            Cancelación neta por ronda
+      <Link
+        to="/reglas"
+        className="block rounded-[2rem] border border-slate-200 bg-sand p-5 shadow-card transition hover:-translate-y-0.5"
+      >
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Reglas
+        </p>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h3 className="text-2xl font-black tracking-tight">
+              Consulta el formato y la puntuación.
+            </h3>
+            <p className="mt-2 text-sm text-slate-700">
+              1v1, 2v2, sacos por ronda, cancelación y condición de victoria.
+            </p>
+          </div>
+          <span className="inline-flex rounded-[1.4rem] bg-white px-5 py-4 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+            Ver reglas
           </span>
         </div>
-      </article>
+      </Link>
 
       {isLoading ? (
         <p className="text-sm text-slate-500">Sincronizando datos de Firestore...</p>

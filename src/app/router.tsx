@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from './AppLayout';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { RulesPage } from './pages/RulesPage';
 
 const PlayersPage = lazy(async () => {
   const module = await import('../features/players');
@@ -99,6 +100,10 @@ export const router = createBrowserRouter([
       {
         path: 'estadisticas',
         element: withSuspense(<StatsPage />),
+      },
+      {
+        path: 'reglas',
+        element: <RulesPage />,
       },
       {
         path: '*',

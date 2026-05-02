@@ -7,6 +7,7 @@ const items = [
   { to: '/partidas/en-curso', label: 'En curso' },
   { to: '/historial', label: 'Historial' },
   { to: '/estadisticas', label: 'Estadísticas' },
+  { to: '/reglas', label: 'Reglas' },
 ];
 
 export function MainNav() {
