@@ -35,19 +35,17 @@ function RuleChip({ children }: { children: string }) {
   );
 }
 
-function RuleSection({
+function RuleGroup({
   title,
   description,
   items,
-  accentClassName,
 }: {
   title: string;
   description: string;
   items: string[];
-  accentClassName: string;
 }) {
   return (
-    <article className={`rounded-[2rem] border p-6 shadow-card ${accentClassName}`}>
+    <section>
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
         {title}
       </p>
@@ -57,7 +55,7 @@ function RuleSection({
           <RuleChip key={item}>{item}</RuleChip>
         ))}
       </div>
-    </article>
+    </section>
   );
 }
 
@@ -77,75 +75,77 @@ export function RulesPage() {
         </p>
       </article>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <RuleSection
-          title="Puntuación"
-          description="Cada bolsa suma según dónde acabe. La ronda se resuelve con cancelación neta."
-          items={scoringItems}
-          accentClassName="border-blueTeam/20 bg-blueTeam/5"
-        />
-        <RuleSection
-          title="Formato"
-          description="La app soporta partidas 1v1 y 2v2 con equipos fijos Azul y Rojo."
-          items={formatItems}
-          accentClassName="border-redTeam/20 bg-redTeam/5"
-        />
-        <RuleSection
-          title="Sacos"
-          description="Las validaciones impiden que un jugador o equipo lance más sacos de los permitidos."
-          items={bagItems}
-          accentClassName="border-white/70 bg-white/90 backdrop-blur"
-        />
-        <RuleSection
-          title="Victoria"
-          description="La partida termina cuando un equipo alcanza o supera el objetivo configurado."
-          items={winningItems}
-          accentClassName="border-white/70 bg-white/90 backdrop-blur"
-        />
-      </div>
-
       <article className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Qué significa cada tiro
-        </p>
-        <div className="mt-4 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-[1.6rem] border border-blueTeam/20 bg-blueTeam/5 p-4">
-            <p className="text-lg font-black text-blueTeam">Cornhole</p>
-            <p className="mt-2 text-sm text-slate-700">
-              El saco entra por el agujero. Vale 3 puntos.
-            </p>
-          </div>
-          <div className="rounded-[1.6rem] border border-redTeam/20 bg-redTeam/5 p-4">
-            <p className="text-lg font-black text-redTeam">Woody</p>
-            <p className="mt-2 text-sm text-slate-700">
-              El saco se queda sobre la tabla. Vale 1 punto.
-            </p>
-          </div>
-          <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-lg font-black text-ink">Miss</p>
-            <p className="mt-2 text-sm text-slate-700">
-              El saco no puntúa. Vale 0 puntos y la app lo calcula automáticamente.
-            </p>
-          </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RuleGroup
+            title="Puntuación"
+            description="Cada bolsa suma según dónde acabe. La ronda se resuelve con cancelación neta."
+            items={scoringItems}
+          />
+          <RuleGroup
+            title="Formato"
+            description="La app soporta partidas 1v1 y 2v2 con equipos fijos Azul y Rojo."
+            items={formatItems}
+          />
+          <RuleGroup
+            title="Sacos"
+            description="Las validaciones impiden que un jugador o equipo lance más sacos de los permitidos."
+            items={bagItems}
+          />
+          <RuleGroup
+            title="Victoria"
+            description="La partida termina cuando un equipo alcanza o supera el objetivo configurado."
+            items={winningItems}
+          />
         </div>
       </article>
 
-      <article className="rounded-[2rem] border border-slate-200 bg-sand p-6 shadow-card">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Orden de lanzamiento
-        </p>
-        <p className="mt-3 text-sm text-slate-700">
-          Durante una ronda, Azul y Rojo lanzan de forma alterna hasta completar
-          sus 4 sacos por equipo. La ronda termina cuando ambos equipos han
-          lanzado todos sus sacos.
-        </p>
+      <article className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <section>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Qué significa cada tiro
+            </p>
+            <div className="mt-4 space-y-4">
+              <div>
+                <p className="text-lg font-black text-blueTeam">Cornhole</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  El saco entra por el agujero. Vale 3 puntos.
+                </p>
+              </div>
+              <div>
+                <p className="text-lg font-black text-redTeam">Woody</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  El saco se queda sobre la tabla. Vale 1 punto.
+                </p>
+              </div>
+              <div>
+                <p className="text-lg font-black text-ink">Miss</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  El saco no puntúa. Vale 0 puntos y la app lo calcula automáticamente.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="border-t border-slate-200 pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Orden de lanzamiento
+            </p>
+            <p className="mt-3 text-sm text-slate-700">
+              Durante una ronda, Azul y Rojo lanzan de forma alterna hasta completar
+              sus 4 sacos por equipo. La ronda termina cuando ambos equipos han
+              lanzado todos sus sacos.
+            </p>
+          </section>
+        </div>
       </article>
 
       <article className="rounded-[2rem] border border-slate-200 bg-sand p-6 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
           Ejemplo de cancelación
         </p>
-        <div className="mt-4 flex flex-col gap-3 text-sm text-slate-700">
+        <div className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
           <p>Azul hace 6 puntos brutos.</p>
           <p>Rojo hace 4 puntos brutos.</p>
           <p>Azul suma 2 puntos netos.</p>
