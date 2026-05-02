@@ -11,23 +11,48 @@ import { useRoundActions } from './hooks/useRoundActions';
 import { useRounds } from './hooks/useRounds';
 import { createEmptyRoundForm, createRoundFormFromRound, type RoundFormState } from './roundForm';
 
-function TeamNames({
-  playerIds,
-  namesById,
-}: {
-  playerIds: string[];
-  namesById: Map<string, string>;
-}) {
+function renderPlayerLine(playerIds: string[], namesById: Map<string, string>) {
+  return playerIds.map((playerId) => namesById.get(playerId) ?? playerId).join(' · ');
+}
+
+function RecentRoundsTimeline({ rounds }: { rounds: Round[] }) {
+  const recentRounds = rounds.slice(-5);
+
+  if (recentRounds.length === 0) {
+    return (
+      <p className="text-sm font-medium text-slate-500">
+        Aún no hay rondas guardadas.
+      </p>
+    );
+  }
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {playerIds.map((playerId) => (
-        <span
-          key={playerId}
-          className="rounded-full bg-white/80 px-3 py-1 text-sm font-semibold text-slate-700"
-        >
-          {namesById.get(playerId) ?? playerId}
-        </span>
-      ))}
+    <div className="flex flex-wrap items-start gap-3">
+      {recentRounds.map((round, index) => {
+        const isLatest = index === recentRounds.length - 1;
+        const netScore = round.blueNetScore > 0 ? round.blueNetScore : round.redNetScore;
+        const colorClassName =
+          round.blueNetScore > 0
+            ? 'bg-blueTeam text-white'
+            : round.redNetScore > 0
+              ? 'bg-redTeam text-white'
+              : 'bg-slate-200 text-slate-700';
+
+        return (
+          <div key={round.id} className="flex flex-col items-center gap-1">
+            <div
+              className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black ${colorClassName} ${
+                isLatest ? 'ring-4 ring-ink/10' : ''
+              }`}
+            >
+              {netScore}
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              R{round.roundNumber}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -225,94 +250,62 @@ export function GamePage() {
       : game.winnerTeam === 'red'
         ? 'Gana Equipo Rojo'
         : 'Sin ganador todavía';
+  const projectedBlueScore = game.blueScore + preview.blueNetScore;
+  const projectedRedScore = game.redScore + preview.redNetScore;
+  const activeRoundNumber = editingRound ? editingRound.roundNumber : nextRoundNumber(rounds);
 
   return (
     <section className="space-y-6">
       <FirebaseStatusBanner />
 
-      <article className="sticky top-4 z-20 rounded-3xl border border-white/70 bg-white/95 p-4 shadow-card backdrop-blur sm:p-6">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-3">
-          <div className="rounded-3xl bg-blueTeam p-4 text-white sm:p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
-              Equipo Azul
+      <section className="sticky top-4 z-20 rounded-[2rem] bg-white/95 px-4 py-5 shadow-card backdrop-blur sm:px-6">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-blueTeam">
+              Azul
             </p>
-            <p className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
+            <p className="text-5xl font-black leading-none tracking-tight text-blueTeam sm:text-7xl">
               {game.blueScore}
             </p>
           </div>
-
-          <div className="flex items-center justify-center">
-            <div className="rounded-full border border-slate-200 bg-white px-3 py-2 text-base font-black tracking-[0.2em] text-slate-500 sm:px-5 sm:text-xl">
-              VS
-            </div>
-          </div>
-
-          <div className="rounded-3xl bg-redTeam p-4 text-white sm:p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
-              Equipo Rojo
+          <div className="pb-2 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+              Objetivo {game.targetScore}
             </p>
-            <p className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
+            <p className="mt-2 text-sm font-semibold text-slate-500">{winnerLabel}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-redTeam">
+              Rojo
+            </p>
+            <p className="text-5xl font-black leading-none tracking-tight text-redTeam sm:text-7xl">
               {game.redScore}
             </p>
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-slate-600">
-            <span>Objetivo {game.targetScore}</span>
-            <span>{winnerLabel}</span>
-            <span>
-              Si guardas: {game.blueScore + preview.blueNetScore} -{' '}
-              {game.redScore + preview.redNetScore}
-            </span>
-          </div>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <RecentRoundsTimeline rounds={rounds} />
+          <p className="text-sm font-semibold text-slate-500">
+            Ronda {activeRoundNumber} · Si guardas {projectedBlueScore} - {projectedRedScore}
+          </p>
         </div>
-      </article>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <article className="rounded-3xl border border-blueTeam/30 bg-blueTeam/5 p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blueTeam/80">
-            Equipo Azul
-          </p>
-          <div className="mt-4">
-            <TeamNames playerIds={game.bluePlayerIds} namesById={namesById} />
-          </div>
-        </article>
-
-        <article className="rounded-3xl border border-redTeam/30 bg-redTeam/5 p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-redTeam/80">
-            Equipo Rojo
-          </p>
-          <div className="mt-4">
-            <TeamNames playerIds={game.redPlayerIds} namesById={namesById} />
-          </div>
-        </article>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Próxima ronda
-          </p>
-          <p className="mt-3 text-3xl font-black text-ink">
-            {editingRound ? `Editando ${editingRound.roundNumber}` : nextRoundNumber(rounds)}
-          </p>
-        </article>
-        <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Rondas guardadas
-          </p>
-          <p className="mt-3 text-3xl font-black text-ink">{rounds.length}</p>
-        </article>
-        <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Actualización
-          </p>
-          <p className="mt-3 text-sm font-semibold text-slate-700">
-            Firestore en tiempo real activo
-          </p>
-        </article>
-      </div>
+      <section className="space-y-3 px-1">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-black uppercase tracking-[0.18em] text-blueTeam">Azul</span>
+          <span className="text-slate-700">
+            {renderPlayerLine(game.bluePlayerIds, namesById)}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-black uppercase tracking-[0.18em] text-redTeam">Rojo</span>
+          <span className="text-slate-700">
+            {renderPlayerLine(game.redPlayerIds, namesById)}
+          </span>
+        </div>
+      </section>
 
       <RoundFormCard
         game={game}
@@ -323,8 +316,8 @@ export function GamePage() {
         submitError={roundActions.error}
         isSubmitting={roundActions.isSubmitting}
         editingRoundNumber={editingRound?.roundNumber ?? null}
-        projectedBlueScore={game.blueScore + preview.blueNetScore}
-        projectedRedScore={game.redScore + preview.redNetScore}
+        projectedBlueScore={projectedBlueScore}
+        projectedRedScore={projectedRedScore}
         onChange={handleThrowChange}
         onSubmit={() => {
           void handleSubmitRound();

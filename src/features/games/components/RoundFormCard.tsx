@@ -28,6 +28,8 @@ type RoundFormCardProps = {
 type ThrowGroupProps = {
   title: string;
   accentClassName: string;
+  accentTextClassName: string;
+  dividerClassName: string;
   inputs: PlayerThrowInput[];
   previewThrows: RoundCalculation['blueThrows'];
   bagsPerPlayer: number;
@@ -92,6 +94,8 @@ function ValueControls({
 function ThrowGroup({
   title,
   accentClassName,
+  accentTextClassName,
+  dividerClassName,
   inputs,
   previewThrows,
   bagsPerPlayer,
@@ -99,11 +103,11 @@ function ThrowGroup({
   onChange,
 }: ThrowGroupProps) {
   return (
-    <article className={`rounded-3xl border p-5 ${accentClassName}`}>
-      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+    <article className={`rounded-[2rem] border px-5 py-4 ${accentClassName}`}>
+      <p className={`text-sm font-black uppercase tracking-[0.2em] ${accentTextClassName}`}>
         {title}
       </p>
-      <div className="mt-4 grid gap-4">
+      <div className="mt-3">
         {inputs.map((playerThrow, index) => {
           const previewThrow = previewThrows[index];
           const maxCornholes = bagsPerPlayer - playerThrow.woodies;
@@ -112,7 +116,7 @@ function ThrowGroup({
           return (
             <div
               key={playerThrow.playerId}
-              className="rounded-2xl border border-white/80 bg-white/80 p-4"
+              className={`py-4 ${index === 0 ? '' : `border-t ${dividerClassName}`}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-base font-bold text-ink">
@@ -123,7 +127,7 @@ function ThrowGroup({
                 </div>
               </div>
 
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <ValueControls
                   label="Cornholes (+3)"
                   value={playerThrow.cornholes}
@@ -170,10 +174,16 @@ export function RoundFormCard({
   const heading = editingRoundNumber
     ? `Editar ronda ${editingRoundNumber}`
     : 'Registrar nueva ronda';
+  const roundSummaryLabel =
+    preview.blueNetScore > 0
+      ? `Azul ${preview.blueNetScore}`
+      : preview.redNetScore > 0
+        ? `Rojo ${preview.redNetScore}`
+        : 'Empate 0';
 
   return (
     <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
             Ronda
@@ -198,7 +208,9 @@ export function RoundFormCard({
       <div className="mt-6 grid gap-4 xl:grid-cols-2">
         <ThrowGroup
           title="Equipo Azul"
-          accentClassName="border-blueTeam/30 bg-blueTeam/5"
+          accentClassName="border-blueTeam/20 bg-blueTeam/5"
+          accentTextClassName="text-blueTeam"
+          dividerClassName="border-blueTeam/15"
           inputs={formState.blueThrows}
           previewThrows={preview.blueThrows}
           bagsPerPlayer={bagsPerPlayer}
@@ -209,7 +221,9 @@ export function RoundFormCard({
         />
         <ThrowGroup
           title="Equipo Rojo"
-          accentClassName="border-redTeam/30 bg-redTeam/5"
+          accentClassName="border-redTeam/20 bg-redTeam/5"
+          accentTextClassName="text-redTeam"
+          dividerClassName="border-redTeam/15"
           inputs={formState.redThrows}
           previewThrows={preview.redThrows}
           bagsPerPlayer={bagsPerPlayer}
@@ -220,34 +234,18 @@ export function RoundFormCard({
         />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Azul bruto / neto
-          </p>
-          <p className="mt-2 text-2xl font-black text-blueTeam">
-            {preview.blueRawScore} / {preview.blueNetScore}
-          </p>
+      <div className="mt-6 rounded-[2rem] border border-slate-200 bg-slate-50 px-5 py-4">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <p className="text-lg font-black text-blueTeam">Azul {preview.blueNetScore}</p>
+          <p className="text-lg font-black text-redTeam">Rojo {preview.redNetScore}</p>
+          <p className="text-lg font-black text-ink">{roundSummaryLabel}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Rojo bruto / neto
-          </p>
-          <p className="mt-2 text-2xl font-black text-redTeam">
-            {preview.redRawScore} / {preview.redNetScore}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Marcador si guardas ahora
-          </p>
-          <p className="mt-2 text-2xl font-black text-ink">
-            {projectedBlueScore} - {projectedRedScore}
-          </p>
-          <p className="mt-2 text-sm font-semibold text-slate-700">
-            Solo puntúa el equipo con mayor bruto en la cancelación.
-          </p>
-        </div>
+        <p className="mt-2 text-sm font-medium text-slate-600">
+          Bruto: Azul {preview.blueRawScore} · Rojo {preview.redRawScore}
+        </p>
+        <p className="mt-1 text-sm font-medium text-slate-600">
+          Marcador si guardas: {projectedBlueScore} - {projectedRedScore}
+        </p>
       </div>
 
       {validationErrors.length > 0 ? (
@@ -264,18 +262,20 @@ export function RoundFormCard({
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={onSubmit}
-        disabled={isSubmitting}
-        className="sticky bottom-4 mt-6 w-full rounded-3xl bg-ink px-5 py-4 text-sm font-semibold text-white shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isSubmitting
-          ? 'Guardando ronda...'
-          : editingRoundNumber
-            ? 'Guardar cambios de la ronda'
-            : 'Guardar ronda'}
-      </button>
+      <div className="sticky bottom-4 mt-6 rounded-[2rem] bg-white/95 p-2 shadow-xl backdrop-blur">
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={isSubmitting}
+          className="w-full rounded-[1.4rem] bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isSubmitting
+            ? 'Guardando ronda...'
+            : editingRoundNumber
+              ? 'Guardar cambios de la ronda'
+              : 'Guardar ronda'}
+        </button>
+      </div>
     </article>
   );
 }
