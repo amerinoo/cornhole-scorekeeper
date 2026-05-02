@@ -12,22 +12,24 @@ const items = [
 
 export function MainNav() {
   return (
-    <nav className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          className={({ isActive }) =>
-            `rounded-full px-4 py-2 text-sm font-semibold transition ${
-              isActive
-                ? 'bg-ink text-white'
-                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
-            }`
-          }
-        >
-          {item.label}
-        </NavLink>
-      ))}
+    <nav className="w-full max-w-full overflow-x-auto">
+      <div className="inline-flex min-w-full gap-1 rounded-[1.6rem] border border-slate-200/80 bg-slate-100/85 p-1.5 shadow-sm backdrop-blur lg:min-w-0">
+        {items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `whitespace-nowrap rounded-[1.1rem] px-4 py-2.5 text-sm font-semibold transition ${
+                isActive
+                  ? 'bg-ink text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white/90 hover:text-ink'
+              }`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   );
 }
