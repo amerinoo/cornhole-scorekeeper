@@ -11,8 +11,25 @@ import { useRoundActions } from './hooks/useRoundActions';
 import { useRounds } from './hooks/useRounds';
 import { createEmptyRoundForm, createRoundFormFromRound, type RoundFormState } from './roundForm';
 
-function renderPlayerLine(playerIds: string[], namesById: Map<string, string>) {
-  return playerIds.map((playerId) => namesById.get(playerId) ?? playerId).join(' · ');
+function PlayerChips({
+  playerIds,
+  namesById,
+}: {
+  playerIds: string[];
+  namesById: Map<string, string>;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {playerIds.map((playerId) => (
+        <span
+          key={playerId}
+          className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200"
+        >
+          {namesById.get(playerId) ?? playerId}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function RecentRoundsTimeline({ rounds }: { rounds: Round[] }) {
@@ -295,15 +312,11 @@ export function GamePage() {
       <section className="space-y-3 px-1">
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="font-black uppercase tracking-[0.18em] text-blueTeam">Azul</span>
-          <span className="text-slate-700">
-            {renderPlayerLine(game.bluePlayerIds, namesById)}
-          </span>
+          <PlayerChips playerIds={game.bluePlayerIds} namesById={namesById} />
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="font-black uppercase tracking-[0.18em] text-redTeam">Rojo</span>
-          <span className="text-slate-700">
-            {renderPlayerLine(game.redPlayerIds, namesById)}
-          </span>
+          <PlayerChips playerIds={game.redPlayerIds} namesById={namesById} />
         </div>
       </section>
 
