@@ -1,30 +1,30 @@
 const scoringItems = [
-  'Cornhole: 3 puntos',
-  'Woody: 1 punto',
-  'Miss: 0 puntos',
-  'La cancelación deja puntuar solo al equipo con mayor bruto',
+  "Cornhole: 3 puntos",
+  "Woody: 1 punto",
+  "Miss: 0 puntos",
+  "La cancelación deja puntuar solo al equipo con mayor bruto",
 ];
 
 const formatItems = [
-  '1v1: 1 jugador por equipo',
-  '2v2: 2 jugadores por equipo',
-  'Cada equipo lanza siempre 4 sacos por ronda',
-  'Cada ronda tiene 8 sacos en total',
-  'Los equipos lanzan de forma alterna hasta completar la ronda',
+  "1v1: 1 jugador por equipo",
+  "2v2: 2 jugadores por equipo",
+  "Cada equipo lanza siempre 4 sacos por ronda",
+  "Cada ronda tiene 8 sacos en total",
+  "Los equipos lanzan de forma alterna hasta completar la ronda",
 ];
 
 const bagItems = [
-  '1v1: 4 sacos por jugador',
-  '2v2: 2 sacos por jugador',
-  'Un equipo nunca puede lanzar más de 4 sacos',
-  'Los misses se calculan automáticamente',
+  "1v1: 4 sacos por jugador",
+  "2v2: 2 sacos por jugador",
+  "Un equipo nunca puede lanzar más de 4 sacos",
+  "Los misses se calculan automáticamente",
 ];
 
 const winningItems = [
-  'Objetivo de 11 o 21 puntos',
-  'Gana el primer equipo que llegue o supere el objetivo',
-  'No hay regla de pasarse de puntos',
-  'Las partidas finalizadas quedan en solo lectura',
+  "Objetivo de 11 o 21 puntos",
+  "Gana el primer equipo que llegue o supere el objetivo",
+  "No hay regla de pasarse de puntos",
+  "Las partidas finalizadas quedan en solo lectura",
 ];
 
 function RuleGroup({
@@ -117,7 +117,8 @@ export function RulesPage() {
               <div>
                 <p className="text-lg font-black text-ink">Miss</p>
                 <p className="mt-1 text-sm text-slate-700">
-                  El saco no puntúa. Vale 0 puntos y la app lo calcula automáticamente.
+                  El saco no puntúa. Vale 0 puntos y la app lo calcula
+                  automáticamente.
                 </p>
               </div>
             </div>
@@ -128,9 +129,9 @@ export function RulesPage() {
               Orden de lanzamiento
             </p>
             <p className="mt-3 text-sm text-slate-700">
-              Durante una ronda, Azul y Rojo lanzan de forma alterna hasta completar
-              sus 4 sacos por equipo. La ronda termina cuando ambos equipos han
-              lanzado todos sus sacos.
+              Durante una ronda, Azul y Rojo lanzan de forma alterna hasta
+              completar sus 4 sacos por equipo. La ronda termina cuando ambos
+              equipos han lanzado todos sus sacos.
             </p>
           </section>
         </div>
@@ -140,42 +141,50 @@ export function RulesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
           Ejemplo de cancelación
         </p>
-        <p className="mt-3 text-sm text-slate-700">
-          Se comparan los puntos brutos de ambos equipos y solo suma la diferencia.
-        </p>
 
         <div className="mt-5">
           <div className="flex items-center justify-center gap-1 rounded-[1.4rem] bg-white p-2.5 ring-1 ring-slate-200">
-            <div className="flex w-[5.6rem] flex-col justify-center rounded-[1.1rem] bg-blueTeam/8 px-2 py-2 text-center sm:w-[6.1rem]">
+            <div className="flex w-14 flex-col justify-center rounded-[1.1rem] bg-blueTeam/8 py-2 text-center sm:w-[6.1rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/70">
                 Azul
               </p>
-              <p className="mt-1 text-3xl font-black text-blueTeam sm:text-4xl">6</p>
+              <p className="mt-1 text-3xl font-black text-blueTeam sm:text-4xl">
+                6
+              </p>
               <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
             <div className="flex w-4 items-center justify-center sm:w-5">
-              <p className="text-2xl font-black text-slate-300 sm:text-3xl">−</p>
+              <p className="text-2xl font-black text-slate-300 sm:text-3xl">
+                −
+              </p>
             </div>
 
-            <div className="flex w-[5.6rem] flex-col justify-center rounded-[1.1rem] bg-redTeam/8 px-2 py-2 text-center sm:w-[6.1rem]">
+            <div className="flex w-14 flex-col justify-center rounded-[1.1rem] bg-redTeam/8 py-2 text-center sm:w-[6.1rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/70">
                 Rojo
               </p>
-              <p className="mt-1 text-3xl font-black text-redTeam sm:text-4xl">4</p>
+              <p className="mt-1 text-3xl font-black text-redTeam sm:text-4xl">
+                4
+              </p>
               <p className="mt-1 text-xs font-medium text-slate-600">bruto</p>
             </div>
 
-            <div className="flex w-4 items-center justify-center sm:w-5">
-              <p className="text-2xl font-black text-slate-300 sm:text-3xl">=</p>
+            <div className="flex w-6 items-center justify-center sm:w-5">
+              <p className="text-2xl font-black text-slate-300 sm:text-3xl">
+                =
+              </p>
             </div>
 
-            <div className="flex w-[6.2rem] flex-col justify-center rounded-[0.95rem] bg-blueTeam px-1.5 py-1.5 text-center text-white sm:w-[6.8rem]">
+            <div className="flex w-24 flex-col justify-center rounded-[0.95rem] bg-blueTeam  py-1.5 text-center text-white sm:w-[6.8rem]">
               <p className="text-base font-black sm:text-lg">Azul +2</p>
             </div>
           </div>
-          <p className="mt-2 text-center text-xs font-medium text-slate-600">
-            Rojo no suma
+          <p className="mt-3 text-sm text-justify text-slate-700">
+            Se comparan los puntos brutos de ambos equipos y solo suma la
+            diferencia. En este ejemplo Rojo no suma puntos porque Azul tiene
+            más puntos brutos, aunque ambos equipos hayan anotado puntos en la
+            ronda.
           </p>
         </div>
       </article>
