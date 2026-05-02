@@ -24,10 +24,11 @@ export function MainNav({
     : desktopOnly
       ? 'hidden lg:block'
       : '';
+  const mobileMenuPositionClassName = mobileOnly ? 'left-0' : 'right-0';
 
   return (
     <nav className={`relative z-50 ${navVisibilityClassName}`}>
-      <div className="flex items-center justify-end lg:hidden">
+      <div className="flex items-center lg:hidden">
         <button
           type="button"
           onClick={() => {
@@ -46,7 +47,9 @@ export function MainNav({
       </div>
 
       {isOpen ? (
-        <div className="absolute right-0 top-14 z-50 w-64 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-xl lg:hidden">
+        <div
+          className={`absolute top-14 z-50 w-64 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-xl lg:hidden ${mobileMenuPositionClassName}`}
+        >
           <div className="grid gap-1">
             {items.map((item) => (
               <NavLink
