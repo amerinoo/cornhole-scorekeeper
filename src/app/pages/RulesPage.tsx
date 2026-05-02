@@ -10,6 +10,7 @@ const formatItems = [
   '2v2: 2 jugadores por equipo',
   'Cada equipo lanza siempre 4 sacos por ronda',
   'Cada ronda tiene 8 sacos en total',
+  'Los equipos lanzan de forma alterna hasta completar la ronda',
 ];
 
 const bagItems = [
@@ -102,6 +103,43 @@ export function RulesPage() {
           accentClassName="border-white/70 bg-white/90 backdrop-blur"
         />
       </div>
+
+      <article className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Qué significa cada tiro
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-[1.6rem] border border-blueTeam/20 bg-blueTeam/5 p-4">
+            <p className="text-lg font-black text-blueTeam">Cornhole</p>
+            <p className="mt-2 text-sm text-slate-700">
+              El saco entra por el agujero. Vale 3 puntos.
+            </p>
+          </div>
+          <div className="rounded-[1.6rem] border border-redTeam/20 bg-redTeam/5 p-4">
+            <p className="text-lg font-black text-redTeam">Woody</p>
+            <p className="mt-2 text-sm text-slate-700">
+              El saco se queda sobre la tabla. Vale 1 punto.
+            </p>
+          </div>
+          <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-4">
+            <p className="text-lg font-black text-ink">Miss</p>
+            <p className="mt-2 text-sm text-slate-700">
+              El saco no puntúa. Vale 0 puntos y la app lo calcula automáticamente.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article className="rounded-[2rem] border border-slate-200 bg-sand p-6 shadow-card">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Orden de lanzamiento
+        </p>
+        <p className="mt-3 text-sm text-slate-700">
+          Durante una ronda, Azul y Rojo lanzan de forma alterna hasta completar
+          sus 4 sacos por equipo. La ronda termina cuando ambos equipos han
+          lanzado todos sus sacos.
+        </p>
+      </article>
 
       <article className="rounded-[2rem] border border-slate-200 bg-sand p-6 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
