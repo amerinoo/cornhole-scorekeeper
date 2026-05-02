@@ -29,6 +29,7 @@ type ThrowGroupProps = {
   title: string;
   accentClassName: string;
   inputs: PlayerThrowInput[];
+  previewThrows: RoundCalculation['blueThrows'];
   bagsPerPlayer: number;
   namesById: Map<string, string>;
   onChange: (
@@ -41,13 +42,17 @@ type ThrowGroupProps = {
 function ValueControls({
   label,
   value,
-  max,
+  total,
+  maxSelectable,
   onChange,
+  interactive = true,
 }: {
   label: string;
   value: number;
-  max: number;
-  onChange: (value: number) => void;
+  total: number;
+  maxSelectable: number;
+  onChange?: (value: number) => void;
+  interactive?: boolean;
 }) {
   return (
     <div className="space-y-2">
@@ -55,17 +60,17 @@ function ValueControls({
         {label}
       </span>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 4 }, (_, index) => index + 1).map((preset) => {
+        {Array.from({ length: total }, (_, index) => index + 1).map((preset) => {
           const isSelected = value === preset;
-          const isDisabled = preset > max;
+          const isDisabled = preset > maxSelectable;
 
           return (
             <button
               key={preset}
               type="button"
-              disabled={isDisabled}
+              disabled={!interactive || isDisabled}
               onClick={() => {
-                onChange(isSelected ? 0 : preset);
+                onChange?.(isSelected ? 0 : preset);
               }}
               className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black transition ${
                 isSelected
@@ -73,7 +78,7 @@ function ValueControls({
                   : isDisabled
                     ? 'border border-slate-200 bg-slate-100 text-slate-300'
                     : 'border border-slate-200 bg-white text-slate-700'
-              }`}
+              } ${interactive ? '' : 'cursor-default'}`}
             >
               {preset}
             </button>
@@ -88,6 +93,7 @@ function ThrowGroup({
   title,
   accentClassName,
   inputs,
+  previewThrows,
   bagsPerPlayer,
   namesById,
   onChange,
@@ -98,10 +104,12 @@ function ThrowGroup({
         {title}
       </p>
       <div className="mt-4 grid gap-4">
-        {inputs.map((playerThrow) => {
+        {inputs.map((playerThrow, index) => {
+          const previewThrow = previewThrows[index];
           const bagsUsed = playerThrow.cornholes + playerThrow.woodies;
           const maxCornholes = bagsPerPlayer - playerThrow.woodies;
           const maxWoodies = bagsPerPlayer - playerThrow.cornholes;
+          const misses = previewThrow?.misses ?? Math.max(0, bagsPerPlayer - bagsUsed);
 
           return (
             <div
@@ -117,11 +125,12 @@ function ThrowGroup({
                 </p>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 space-y-3">
                 <ValueControls
                   label="Cornholes"
                   value={playerThrow.cornholes}
-                  max={maxCornholes}
+                  total={bagsPerPlayer}
+                  maxSelectable={maxCornholes}
                   onChange={(value) => {
                     onChange(playerThrow.playerId, 'cornholes', value);
                   }}
@@ -129,10 +138,18 @@ function ThrowGroup({
                 <ValueControls
                   label="Woodies"
                   value={playerThrow.woodies}
-                  max={maxWoodies}
+                  total={bagsPerPlayer}
+                  maxSelectable={maxWoodies}
                   onChange={(value) => {
                     onChange(playerThrow.playerId, 'woodies', value);
                   }}
+                />
+                <ValueControls
+                  label="Misses"
+                  value={misses}
+                  total={bagsPerPlayer}
+                  maxSelectable={bagsPerPlayer}
+                  interactive={false}
                 />
               </div>
             </div>
@@ -193,6 +210,7 @@ export function RoundFormCard({
           title="Equipo Azul"
           accentClassName="border-blueTeam/30 bg-blueTeam/5"
           inputs={formState.blueThrows}
+          previewThrows={preview.blueThrows}
           bagsPerPlayer={bagsPerPlayer}
           namesById={namesById}
           onChange={(playerId, field, value) => {
@@ -203,6 +221,7 @@ export function RoundFormCard({
           title="Equipo Rojo"
           accentClassName="border-redTeam/30 bg-redTeam/5"
           inputs={formState.redThrows}
+          previewThrows={preview.redThrows}
           bagsPerPlayer={bagsPerPlayer}
           namesById={namesById}
           onChange={(playerId, field, value) => {
