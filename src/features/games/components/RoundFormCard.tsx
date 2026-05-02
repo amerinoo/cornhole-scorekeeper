@@ -13,8 +13,6 @@ type RoundFormCardProps = {
   submitError: string | null;
   isSubmitting: boolean;
   editingRoundNumber: number | null;
-  projectedBlueScore: number;
-  projectedRedScore: number;
   onChange: (
     team: 'blue' | 'red',
     playerId: string,
@@ -164,8 +162,6 @@ export function RoundFormCard({
   submitError,
   isSubmitting,
   editingRoundNumber,
-  projectedBlueScore,
-  projectedRedScore,
   onChange,
   onSubmit,
   onCancelEdit,
@@ -174,12 +170,6 @@ export function RoundFormCard({
   const heading = editingRoundNumber
     ? `Editar ronda ${editingRoundNumber}`
     : 'Registrar nueva ronda';
-  const roundSummaryLabel =
-    preview.blueNetScore > 0
-      ? `Azul ${preview.blueNetScore}`
-      : preview.redNetScore > 0
-        ? `Rojo ${preview.redNetScore}`
-        : 'Empate 0';
 
   return (
     <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
@@ -232,20 +222,6 @@ export function RoundFormCard({
             onChange('red', playerId, field, value);
           }}
         />
-      </div>
-
-      <div className="mt-6 rounded-[2rem] border border-slate-200 bg-slate-50 px-5 py-4">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <p className="text-lg font-black text-blueTeam">Azul {preview.blueNetScore}</p>
-          <p className="text-lg font-black text-redTeam">Rojo {preview.redNetScore}</p>
-          <p className="text-lg font-black text-ink">{roundSummaryLabel}</p>
-        </div>
-        <p className="mt-2 text-sm font-medium text-slate-600">
-          Bruto: Azul {preview.blueRawScore} · Rojo {preview.redRawScore}
-        </p>
-        <p className="mt-1 text-sm font-medium text-slate-600">
-          Marcador si guardas: {projectedBlueScore} - {projectedRedScore}
-        </p>
       </div>
 
       {validationErrors.length > 0 ? (

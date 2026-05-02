@@ -355,15 +355,13 @@ export function GamePage() {
           namesById={namesById}
           formState={formState}
           preview={preview}
-          validationErrors={localValidationErrors}
-          submitError={roundActions.error}
-          isSubmitting={roundActions.isSubmitting}
-          editingRoundNumber={editingRound?.roundNumber ?? null}
-          projectedBlueScore={projectedBlueScore}
-          projectedRedScore={projectedRedScore}
-          onChange={handleThrowChange}
-          onSubmit={() => {
-            void handleSubmitRound();
+        validationErrors={localValidationErrors}
+        submitError={roundActions.error}
+        isSubmitting={roundActions.isSubmitting}
+        editingRoundNumber={editingRound?.roundNumber ?? null}
+        onChange={handleThrowChange}
+        onSubmit={() => {
+          void handleSubmitRound();
           }}
           onCancelEdit={() => {
             resetForm(game);
