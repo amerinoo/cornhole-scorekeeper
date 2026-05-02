@@ -140,38 +140,42 @@ export function RulesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
           Ejemplo de cancelación
         </p>
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-          <div className="rounded-[1.6rem] bg-blueTeam px-5 py-4 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-              Azul
-            </p>
-            <p className="mt-2 text-3xl font-black">6</p>
-            <p className="mt-1 text-sm font-medium text-white/80">Bruto</p>
-          </div>
+        <p className="mt-3 text-sm text-slate-700">
+          Se comparan los puntos brutos de ambos equipos y solo suma la diferencia.
+        </p>
 
-          <div className="flex flex-col items-center gap-2 text-center">
-            <p className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 ring-1 ring-slate-200">
-              Cancelación
-            </p>
-            <p className="text-2xl font-black text-ink">Azul +2</p>
-          </div>
+        <div className="mt-5 rounded-[1.8rem] bg-white p-4 ring-1 ring-slate-200">
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1.15fr] sm:items-center">
+            <div className="rounded-[1.5rem] bg-blueTeam/8 px-5 py-4 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/70">
+                Azul
+              </p>
+              <p className="mt-2 text-4xl font-black text-blueTeam">6</p>
+              <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
+            </div>
 
-          <div className="rounded-[1.6rem] bg-redTeam px-5 py-4 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-              Rojo
-            </p>
-            <p className="mt-2 text-3xl font-black">4</p>
-            <p className="mt-1 text-sm font-medium text-white/80">Bruto</p>
-          </div>
-        </div>
+            <p className="text-center text-3xl font-black text-slate-300">−</p>
 
-        <div className="mt-4 flex flex-wrap gap-3 text-sm">
-          <span className="rounded-full bg-white px-4 py-2 font-semibold text-blueTeam ring-1 ring-slate-200">
-            Azul suma 2 netos
-          </span>
-          <span className="rounded-full bg-white px-4 py-2 font-semibold text-redTeam ring-1 ring-slate-200">
-            Rojo suma 0
-          </span>
+            <div className="rounded-[1.5rem] bg-redTeam/8 px-5 py-4 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/70">
+                Rojo
+              </p>
+              <p className="mt-2 text-4xl font-black text-redTeam">4</p>
+              <p className="mt-1 text-sm font-medium text-slate-600">puntos brutos</p>
+            </div>
+
+            <p className="text-center text-3xl font-black text-slate-300">=</p>
+
+            <div className="rounded-[1.5rem] bg-blueTeam px-5 py-4 text-center text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                Resultado
+              </p>
+              <p className="mt-2 text-3xl font-black">Azul +2</p>
+              <p className="mt-1 text-sm font-medium text-white/80">
+                Rojo no suma
+              </p>
+            </div>
+          </div>
         </div>
       </article>
     </section>
