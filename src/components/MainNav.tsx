@@ -13,16 +13,16 @@ const items = [
 export function MainNav() {
   return (
     <nav className="w-full max-w-full overflow-x-auto">
-      <div className="inline-flex min-w-full gap-1 rounded-[1.6rem] border border-slate-200/80 bg-slate-100/85 p-1.5 shadow-sm backdrop-blur lg:min-w-0">
+      <div className="inline-flex min-w-max items-center gap-1 lg:min-w-0">
         {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `whitespace-nowrap rounded-[1.1rem] px-4 py-2.5 text-sm font-semibold transition ${
+              `whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition ${
                 isActive
-                  ? 'bg-ink text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white/90 hover:text-ink'
+                  ? 'bg-ink text-white'
+                  : 'text-slate-500 hover:bg-white/60 hover:text-ink'
               }`
             }
           >
