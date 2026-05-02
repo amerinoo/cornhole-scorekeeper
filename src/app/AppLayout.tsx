@@ -10,15 +10,7 @@ export function AppLayout() {
             Cornhole Scorekeeper
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-                Marcador en tiempo real
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-                Base preparada para crear partidas, registrar rondas y mostrar
-                resultados en móvil o proyector.
-              </p>
-            </div>
+            <div />
             <MainNav />
           </div>
         </header>
