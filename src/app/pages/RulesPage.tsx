@@ -27,14 +27,6 @@ const winningItems = [
   'Las partidas finalizadas quedan en solo lectura',
 ];
 
-function RuleChip({ children }: { children: string }) {
-  return (
-    <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
-      {children}
-    </span>
-  );
-}
-
 function RuleGroup({
   title,
   description,
@@ -50,9 +42,12 @@ function RuleGroup({
         {title}
       </p>
       <p className="mt-3 text-sm text-slate-600">{description}</p>
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-4 space-y-2">
         {items.map((item) => (
-          <RuleChip key={item}>{item}</RuleChip>
+          <p key={item} className="flex gap-3 text-sm text-slate-700">
+            <span className="mt-2 h-2 w-2 rounded-full bg-slate-300" />
+            <span>{item}</span>
+          </p>
         ))}
       </div>
     </section>
@@ -145,11 +140,38 @@ export function RulesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
           Ejemplo de cancelación
         </p>
-        <div className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
-          <p>Azul hace 6 puntos brutos.</p>
-          <p>Rojo hace 4 puntos brutos.</p>
-          <p>Azul suma 2 puntos netos.</p>
-          <p>Rojo suma 0.</p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+          <div className="rounded-[1.6rem] bg-blueTeam px-5 py-4 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              Azul
+            </p>
+            <p className="mt-2 text-3xl font-black">6</p>
+            <p className="mt-1 text-sm font-medium text-white/80">Bruto</p>
+          </div>
+
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 ring-1 ring-slate-200">
+              Cancelación
+            </p>
+            <p className="text-2xl font-black text-ink">Azul +2</p>
+          </div>
+
+          <div className="rounded-[1.6rem] bg-redTeam px-5 py-4 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              Rojo
+            </p>
+            <p className="mt-2 text-3xl font-black">4</p>
+            <p className="mt-1 text-sm font-medium text-white/80">Bruto</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          <span className="rounded-full bg-white px-4 py-2 font-semibold text-blueTeam ring-1 ring-slate-200">
+            Azul suma 2 netos
+          </span>
+          <span className="rounded-full bg-white px-4 py-2 font-semibold text-redTeam ring-1 ring-slate-200">
+            Rojo suma 0
+          </span>
         </div>
       </article>
     </section>
