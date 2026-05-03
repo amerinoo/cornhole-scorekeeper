@@ -196,7 +196,6 @@ export function RoundFormCard({
     0,
   );
   const usedBags = blueUsedBags + redUsedBags;
-  const allBagsUsed = usedBags === totalBags;
   const roundPreviewValue =
     preview.blueNetScore > 0
       ? `+${preview.blueNetScore}`
@@ -264,7 +263,7 @@ export function RoundFormCard({
             <button
               type="button"
               onClick={onSubmit}
-              disabled={isSubmitting || !allBagsUsed}
+              disabled={isSubmitting}
               className="inline-flex w-full items-center justify-center rounded-[1.2rem] bg-ink px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting
