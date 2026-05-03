@@ -46,35 +46,6 @@ function lastRoundLabel(round: Round | null): string {
   return `Ronda ${round.roundNumber}: empate en cancelación`;
 }
 
-const GameInfo = ({ game, rounds, lastUpdatedLabel, getStatusLabel }) => {
-  const url = window.location.href;
-
-  return (
-    <div className="relative grid gap-2 rounded-3xl border border-slate-200 bg-white/90 px-5 py-4 text-sm shadow-sm">
-      {/* QR */}
-      <div className="absolute top-3 right-3 cursor-pointer hover:scale-105 transition">
-        <QRCodeCanvas value={url} size={64} />
-      </div>
-
-      <p>
-        Estado: <span className="font-bold">{getStatusLabel(game.status)}</span>
-      </p>
-      <p>
-        Objetivo: <span className="font-bold">{game.targetScore} puntos</span>
-      </p>
-      <p>
-        Rondas: <span className="font-bold">{rounds.length}</span>
-      </p>
-      {lastUpdatedLabel ? (
-        <p>
-          Última actualización:{" "}
-          <span className="font-bold">{lastUpdatedLabel}</span>
-        </p>
-      ) : null}
-    </div>
-  );
-};
-
 export function GameDisplayPage() {
   const { gameId = "" } = useParams();
   const { game, isLoading: isGameLoading, error: gameError } = useGame(gameId);
@@ -122,6 +93,7 @@ export function GameDisplayPage() {
   const lastRound =
     rounds.length > 0 ? (rounds[rounds.length - 1] ?? null) : null;
   const lastUpdatedLabel = tryFormatFirestoreDate(lastRound?.updatedAt);
+  const url = window.location.href;
 
   return (
     <main className="min-h-screen bg-court px-4 py-6 text-ink sm:px-6 lg:px-8">
@@ -138,12 +110,30 @@ export function GameDisplayPage() {
               {winnerLabel(game.winnerTeam)}
             </p>
           </div>
-          <GameInfo
-            game={game}
-            rounds={rounds}
-            lastUpdatedLabel={lastUpdatedLabel}
-            getStatusLabel={getStatusLabel}
-          />
+          <div className="relative grid gap-2 rounded-3xl border border-slate-200 bg-white/90 px-5 py-4 text-sm shadow-sm">
+            {/* QR */}
+            <div className="absolute top-3 right-3 cursor-pointer hover:scale-105 transition">
+              <QRCodeCanvas value={url} size={64} />
+            </div>
+
+            <p>
+              Estado:{" "}
+              <span className="font-bold">{getStatusLabel(game.status)}</span>
+            </p>
+            <p>
+              Objetivo:{" "}
+              <span className="font-bold">{game.targetScore} puntos</span>
+            </p>
+            <p>
+              Rondas: <span className="font-bold">{rounds.length}</span>
+            </p>
+            {lastUpdatedLabel ? (
+              <p>
+                Última actualización:{" "}
+                <span className="font-bold">{lastUpdatedLabel}</span>
+              </p>
+            ) : null}
+          </div>
         </header>
 
         <section>
