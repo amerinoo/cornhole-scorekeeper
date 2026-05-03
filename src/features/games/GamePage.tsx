@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CompactScoreboard } from "../../components/CompactScoreboard";
 import { FirebaseStatusBanner } from "../../components/FirebaseStatusBanner";
 import { CornholeIcon, MissIcon, WoodieIcon } from "../../components/icons";
@@ -18,6 +18,7 @@ import { RoundsHistoryCard } from "./components/RoundsHistoryCard";
 import { useGame } from "./hooks/useGame";
 import { useRoundActions } from "./hooks/useRoundActions";
 import { useRounds } from "./hooks/useRounds";
+import { useGameActions } from "./hooks/useGameActions";
 import {
   createEmptyRoundForm,
   createRoundFormFromRound,
@@ -102,6 +103,7 @@ function getGameStatusLabel(status: Game["status"]): string {
 
 export function GamePage() {
   const { gameId = "" } = useParams();
+  const navigate = useNavigate();
   const { game, isLoading: isGameLoading, error: gameError } = useGame(gameId);
   const {
     rounds,
@@ -110,6 +112,7 @@ export function GamePage() {
   } = useRounds(gameId);
   const { players } = usePlayers();
   const roundActions = useRoundActions();
+  const gameActions = useGameActions();
   const [editingRoundId, setEditingRoundId] = useState<string | null>(null);
   const [formState, setFormState] = useState<RoundFormState>({
     blueThrows: [],
@@ -281,6 +284,28 @@ export function GamePage() {
     } catch {
       setDisplayLinkState("error");
     }
+  }
+
+  async function handleDeleteGame() {
+    if (!game) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Se borrará la partida y todas sus rondas. Esta acción no se puede deshacer.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const wasSuccessful = await gameActions.remove(game.id);
+
+    if (!wasSuccessful) {
+      return;
+    }
+
+    navigate(game.status === "finished" ? "/historial" : "/partidas/en-curso");
   }
 
   if (isGameLoading) {
@@ -648,6 +673,28 @@ export function GamePage() {
         onEdit={handleEditRound}
       />
       )}
+
+      <section className="flex flex-col gap-3 border-t border-slate-200/80 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-slate-500">
+          Puedes borrar la partida completa junto con todas sus rondas.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            void handleDeleteGame();
+          }}
+          disabled={gameActions.isSubmitting}
+          className="inline-flex items-center justify-center rounded-[1.4rem] border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {gameActions.isSubmitting ? "Borrando..." : "Eliminar partida"}
+        </button>
+      </section>
+
+      {gameActions.error ? (
+        <article className="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+          {gameActions.error}
+        </article>
+      ) : null}
     </section>
   );
 }

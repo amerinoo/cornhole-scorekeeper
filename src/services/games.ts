@@ -2,16 +2,20 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  writeBatch,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import type { CreateGameInput, Game } from '../models';
 import { validateCreateGameInput } from '../features/games/validation';
 
 const gamesCollectionName = 'games';
+const roundsCollectionName = 'rounds';
 
 function requireDb() {
   if (!db) {
@@ -42,6 +46,26 @@ export async function createGame(input: CreateGameInput): Promise<string> {
   });
 
   return createdGame.id;
+}
+
+export async function deleteGame(gameId: string): Promise<void> {
+  const firestore = requireDb();
+  const roundsSnapshot = await getDocs(
+    query(
+      collection(firestore, roundsCollectionName),
+      where('gameId', '==', gameId),
+    ),
+  );
+
+  const batch = writeBatch(firestore);
+
+  roundsSnapshot.docs.forEach((roundDocument) => {
+    batch.delete(roundDocument.ref);
+  });
+
+  batch.delete(doc(firestore, gamesCollectionName, gameId));
+
+  await batch.commit();
 }
 
 export function subscribeToGame(
