@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { CompactScoreboard } from "../../components/CompactScoreboard";
-import type { Round } from "../../models";
+import { CornholeIcon, MissIcon, WoodieIcon } from "../../components/icons";
+import type { PlayerThrow, Round } from "../../models";
 import { tryFormatFirestoreDate } from "../../utils/format";
 import { usePlayers } from "../players/hooks/usePlayers";
+import { RecentRoundsTimeline } from "./components/RecentRoundsTimeline";
 import { useGame } from "./hooks/useGame";
 import { useRounds } from "./hooks/useRounds";
 import { getStatusLabel } from "./components/GameSummaryCard";
@@ -30,20 +32,51 @@ function winnerLabel(winnerTeam: "blue" | "red" | undefined): string {
   return "Partida en juego";
 }
 
-function lastRoundLabel(round: Round | null): string {
+function getLastRoundSummary(round: Round | null): {
+  title: string;
+  badgeLabel: string | null;
+  badgeClassName: string;
+} {
   if (!round) {
-    return "Aún no se ha jugado ninguna ronda.";
+    return {
+      title: "Aún no se ha jugado ninguna ronda.",
+      badgeLabel: null,
+      badgeClassName: "",
+    };
   }
 
   if (round.blueNetScore > 0) {
-    return `Ronda ${round.roundNumber}: Azul suma ${round.blueNetScore}`;
+    return {
+      title: `Ronda ${round.roundNumber}`,
+      badgeLabel: `+${round.blueNetScore}`,
+      badgeClassName: "bg-blueTeam text-white",
+    };
   }
 
   if (round.redNetScore > 0) {
-    return `Ronda ${round.roundNumber}: Rojo suma ${round.redNetScore}`;
+    return {
+      title: `Ronda ${round.roundNumber}`,
+      badgeLabel: `+${round.redNetScore}`,
+      badgeClassName: "bg-redTeam text-white",
+    };
   }
 
-  return `Ronda ${round.roundNumber}: empate en cancelación`;
+  return {
+    title: `Ronda ${round.roundNumber}`,
+    badgeLabel: "Empate 0",
+    badgeClassName: "bg-slate-200 text-slate-700",
+  };
+}
+
+function getThrowTotals(throws: PlayerThrow[]) {
+  return throws.reduce(
+    (totals, playerThrow) => ({
+      cornholes: totals.cornholes + playerThrow.cornholes,
+      woodies: totals.woodies + playerThrow.woodies,
+      misses: totals.misses + playerThrow.misses,
+    }),
+    { cornholes: 0, woodies: 0, misses: 0 },
+  );
 }
 
 export function GameDisplayPage() {
@@ -93,6 +126,13 @@ export function GameDisplayPage() {
   const lastRound =
     rounds.length > 0 ? (rounds[rounds.length - 1] ?? null) : null;
   const lastUpdatedLabel = tryFormatFirestoreDate(lastRound?.updatedAt);
+  const lastRoundSummary = getLastRoundSummary(lastRound);
+  const blueThrowTotals = lastRound
+    ? getThrowTotals(lastRound.blueThrows)
+    : { cornholes: 0, woodies: 0, misses: 0 };
+  const redThrowTotals = lastRound
+    ? getThrowTotals(lastRound.redThrows)
+    : { cornholes: 0, woodies: 0, misses: 0 };
   const url = window.location.href;
 
   return (
@@ -137,75 +177,133 @@ export function GameDisplayPage() {
         </header>
 
         <section>
-          <article className="rounded-[2rem] border border-slate-200 bg-white/92 p-6 shadow-sm lg:p-8">
-            <div className="flex flex-col gap-5 ">
-              <div className="flex flex-col xl:flex-row justify-between gap-5">
-                <div className="min-w-0 rounded-[1.7rem] border border-blueTeam/30 bg-blueTeam/10 p-5">
-                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blueTeam/80">
-                    Equipo Azul
-                  </p>
-                  <p className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
-                    {renderNames(game.bluePlayerIds, namesById)}
-                  </p>
-                </div>
-                <div className="min-w-0 rounded-[1.7rem] border border-redTeam/30 bg-redTeam/10 p-5 text-left">
-                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-redTeam/80">
-                    Equipo Rojo
-                  </p>
-                  <p className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
-                    {renderNames(game.redPlayerIds, namesById)}
-                  </p>
-                </div>
-              </div>
-              <CompactScoreboard
-                blueScore={game.blueScore}
-                redScore={game.redScore}
-                size="xl"
-              />
-            </div>
+          <article className="rounded-[2rem] bg-white/92">
+            <CompactScoreboard
+              blueScore={game.blueScore}
+              redScore={game.redScore}
+              size="xl"
+            />
           </article>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-[2rem] border border-slate-200 bg-sand p-6">
+          <article className="min-w-0 overflow-hidden rounded-[2rem] border border-slate-200 bg-sand p-5 sm:p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               Última ronda
             </p>
-            <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
-              {lastRoundLabel(lastRound)}
-            </h2>
+            <div className="mt-3 flex flex-wrap items-start gap-3">
+              <h2 className="min-w-0 text-xl font-black tracking-tight sm:text-3xl">
+                {lastRoundSummary.title}
+              </h2>
+              {lastUpdatedLabel ? (
+                <span className="rounded-full bg-white/85 px-3 py-2 text-sm font-semibold text-slate-600">
+                  {lastUpdatedLabel}
+                </span>
+              ) : null}
+            </div>
             {lastRound ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/80 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/80">
-                    Azul bruto / neto
+              <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[11rem_minmax(0,1fr)]">
+                <div
+                  className={`min-w-0 flex flex-col items-center justify-center rounded-[1.6rem] px-4 py-5 text-center sm:px-5 sm:py-6 ${lastRoundSummary.badgeClassName}`}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
+                    Neto
                   </p>
-                  <p className="mt-2 text-3xl font-black text-blueTeam">
-                    {lastRound.blueRawScore} / {lastRound.blueNetScore}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-white/80 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/80">
-                    Rojo bruto / neto
-                  </p>
-                  <p className="mt-2 text-3xl font-black text-redTeam">
-                    {lastRound.redRawScore} / {lastRound.redNetScore}
+                  <p className="mt-2 text-4xl font-black leading-none sm:text-5xl">
+                    {lastRoundSummary.badgeLabel ?? "0"}
                   </p>
                 </div>
+
+                <div className="grid min-w-0 gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="min-w-0 rounded-[1.4rem] border border-blueTeam/20 bg-white/85 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/80">
+                        Azul bruto
+                      </p>
+                      <p className="mt-2 text-4xl font-black text-blueTeam">
+                        {lastRound.blueRawScore}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <CornholeIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {blueThrowTotals.cornholes}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <WoodieIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {blueThrowTotals.woodies}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <MissIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {blueThrowTotals.misses}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="min-w-0 rounded-[1.4rem] border border-redTeam/20 bg-white/85 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/80">
+                        Rojo bruto
+                      </p>
+                      <p className="mt-2 text-4xl font-black text-redTeam">
+                        {lastRound.redRawScore}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <CornholeIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {redThrowTotals.cornholes}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <WoodieIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {redThrowTotals.woodies}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+                          <MissIcon className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold">
+                            {redThrowTotals.misses}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            {rounds.length > 0 ? (
+              <div className="mt-5 min-w-0 rounded-[1.6rem] bg-white/75 p-4">
+                <RecentRoundsTimeline rounds={rounds} className="w-full" />
               </div>
             ) : null}
           </article>
 
-          <article className="rounded-[2rem] border border-slate-200 bg-white/90 p-6">
+          <article className="rounded-[2rem] border border-slate-200 bg-white/90 p-5 sm:p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Estado del enlace
+              Equipos
             </p>
-            <div className="mt-4 grid gap-3 text-lg font-semibold text-slate-700">
-              <p>
-                Cualquier pantalla con este enlace se actualiza en tiempo real.
-              </p>
-              <p>Vista limpia pensada para TV o proyector.</p>
-              <p>Sin controles de edición.</p>
+            <div className="mt-4 grid gap-3">
+              <div className="min-w-0 rounded-[1.5rem] border border-blueTeam/30 bg-blueTeam/10 px-4 py-3.5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blueTeam/80">
+                  Equipo Azul
+                </p>
+                <p className="mt-2 text-xl font-bold leading-tight sm:text-2xl">
+                  {renderNames(game.bluePlayerIds, namesById)}
+                </p>
+              </div>
+              <div className="min-w-0 rounded-[1.5rem] border border-redTeam/30 bg-redTeam/10 px-4 py-3.5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-redTeam/80">
+                  Equipo Rojo
+                </p>
+                <p className="mt-2 text-xl font-bold leading-tight sm:text-2xl">
+                  {renderNames(game.redPlayerIds, namesById)}
+                </p>
+              </div>
             </div>
           </article>
         </section>
