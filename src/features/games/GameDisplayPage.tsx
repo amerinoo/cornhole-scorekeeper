@@ -1,30 +1,37 @@
-import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import type { Round } from '../../models';
-import { tryFormatFirestoreDate } from '../../utils/format';
-import { usePlayers } from '../players/hooks/usePlayers';
-import { useGame } from './hooks/useGame';
-import { useRounds } from './hooks/useRounds';
+import { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { CompactScoreboard } from "../../components/CompactScoreboard";
+import type { Round } from "../../models";
+import { tryFormatFirestoreDate } from "../../utils/format";
+import { usePlayers } from "../players/hooks/usePlayers";
+import { useGame } from "./hooks/useGame";
+import { useRounds } from "./hooks/useRounds";
+import { getStatusLabel } from "./components/GameSummaryCard";
 
-function renderNames(playerIds: string[], namesById: Map<string, string>): string {
-  return playerIds.map((playerId) => namesById.get(playerId) ?? playerId).join(' · ');
+function renderNames(
+  playerIds: string[],
+  namesById: Map<string, string>,
+): string {
+  return playerIds
+    .map((playerId) => namesById.get(playerId) ?? playerId)
+    .join(" · ");
 }
 
-function winnerLabel(winnerTeam: 'blue' | 'red' | undefined): string {
-  if (winnerTeam === 'blue') {
-    return 'Gana Equipo Azul';
+function winnerLabel(winnerTeam: "blue" | "red" | undefined): string {
+  if (winnerTeam === "blue") {
+    return "Gana Equipo Azul";
   }
 
-  if (winnerTeam === 'red') {
-    return 'Gana Equipo Rojo';
+  if (winnerTeam === "red") {
+    return "Gana Equipo Rojo";
   }
 
-  return 'Partida en juego';
+  return "Partida en juego";
 }
 
 function lastRoundLabel(round: Round | null): string {
   if (!round) {
-    return 'Aún no se ha jugado ninguna ronda.';
+    return "Aún no se ha jugado ninguna ronda.";
   }
 
   if (round.blueNetScore > 0) {
@@ -39,9 +46,13 @@ function lastRoundLabel(round: Round | null): string {
 }
 
 export function GameDisplayPage() {
-  const { gameId = '' } = useParams();
+  const { gameId = "" } = useParams();
   const { game, isLoading: isGameLoading, error: gameError } = useGame(gameId);
-  const { rounds, isLoading: areRoundsLoading, error: roundsError } = useRounds(gameId);
+  const {
+    rounds,
+    isLoading: areRoundsLoading,
+    error: roundsError,
+  } = useRounds(gameId);
   const { players } = usePlayers();
   const namesById = useMemo(
     () => new Map(players.map((player) => [player.id, player.name])),
@@ -78,7 +89,8 @@ export function GameDisplayPage() {
     );
   }
 
-  const lastRound = rounds.length > 0 ? rounds[rounds.length - 1] ?? null : null;
+  const lastRound =
+    rounds.length > 0 ? (rounds[rounds.length - 1] ?? null) : null;
   const lastUpdatedLabel = tryFormatFirestoreDate(lastRound?.updatedAt);
 
   return (
@@ -99,55 +111,51 @@ export function GameDisplayPage() {
 
           <div className="grid gap-2 rounded-3xl border border-slate-200 bg-white/90 px-5 py-4 text-sm shadow-sm">
             <p>
-              Estado: <span className="font-bold">{game.status}</span>
+              Estado:{" "}
+              <span className="font-bold">{getStatusLabel(game.status)}</span>
             </p>
             <p>
-              Objetivo: <span className="font-bold">{game.targetScore}</span>
+              Objetivo:{" "}
+              <span className="font-bold">{game.targetScore} puntos</span>
             </p>
             <p>
               Rondas: <span className="font-bold">{rounds.length}</span>
             </p>
             {lastUpdatedLabel ? (
               <p>
-                Última actualización: <span className="font-bold">{lastUpdatedLabel}</span>
+                Última actualización:{" "}
+                <span className="font-bold">{lastUpdatedLabel}</span>
               </p>
             ) : null}
           </div>
         </header>
 
-        <section className="grid flex-1 gap-5 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-          <article className="flex flex-col justify-between rounded-[2rem] border border-blueTeam/30 bg-blueTeam/10 p-6 lg:p-8">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blueTeam/80">
-                Equipo Azul
-              </p>
-              <p className="mt-4 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
-                {renderNames(game.bluePlayerIds, namesById)}
-              </p>
-            </div>
-            <p className="mt-8 text-7xl font-black tracking-tight text-blueTeam sm:text-8xl lg:text-9xl">
-              {game.blueScore}
-            </p>
-          </article>
+        <section className="grid flex-1 gap-5">
+          <article className="rounded-[2rem] border border-slate-200 bg-white/92 p-6 shadow-sm lg:p-8">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+              <CompactScoreboard
+                blueScore={game.blueScore}
+                redScore={game.redScore}
+                size="xl"
+              />
+              <div className="min-w-0 rounded-[1.7rem] border border-blueTeam/30 bg-blueTeam/10 p-5">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blueTeam/80">
+                  Equipo Azul
+                </p>
+                <p className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
+                  {renderNames(game.bluePlayerIds, namesById)}
+                </p>
+              </div>
 
-          <div className="flex items-center justify-center px-2">
-            <div className="rounded-full border border-slate-200 bg-white px-6 py-4 text-2xl font-black tracking-[0.18em] text-slate-500 shadow-sm sm:text-3xl">
-              VS
+              <div className="min-w-0 rounded-[1.7rem] border border-redTeam/30 bg-redTeam/10 p-5 text-left xl:flex-1 xl:text-center">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-redTeam/80">
+                  Equipo Rojo
+                </p>
+                <p className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
+                  {renderNames(game.redPlayerIds, namesById)}
+                </p>
+              </div>
             </div>
-          </div>
-
-          <article className="flex flex-col justify-between rounded-[2rem] border border-redTeam/30 bg-redTeam/10 p-6 lg:p-8">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-redTeam/80">
-                Equipo Rojo
-              </p>
-              <p className="mt-4 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
-                {renderNames(game.redPlayerIds, namesById)}
-              </p>
-            </div>
-            <p className="mt-8 text-7xl font-black tracking-tight text-redTeam sm:text-8xl lg:text-9xl">
-              {game.redScore}
-            </p>
           </article>
         </section>
 
@@ -186,7 +194,9 @@ export function GameDisplayPage() {
               Estado del enlace
             </p>
             <div className="mt-4 grid gap-3 text-lg font-semibold text-slate-700">
-              <p>Cualquier pantalla con este enlace se actualiza en tiempo real.</p>
+              <p>
+                Cualquier pantalla con este enlace se actualiza en tiempo real.
+              </p>
               <p>Vista limpia pensada para TV o proyector.</p>
               <p>Sin controles de edición.</p>
             </div>

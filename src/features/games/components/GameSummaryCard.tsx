@@ -1,3 +1,4 @@
+import { CompactScoreboard } from '../../../components/CompactScoreboard';
 import { Link } from 'react-router-dom';
 import type { Game } from '../../../models';
 import {
@@ -16,6 +17,18 @@ type GameSummaryCardProps = {
 
 function renderPlayerNames(playerIds: string[], namesById: Map<string, string>): string {
   return playerIds.map((playerId) => namesById.get(playerId) ?? playerId).join(' · ');
+}
+
+export function getStatusLabel(status: Game['status']): string {
+  if (status === 'finished') {
+    return 'Finalizada';
+  }
+
+  if (status === 'in_progress') {
+    return 'En curso';
+  }
+
+  return 'Preparación';
 }
 
 export function GameSummaryCard({
@@ -39,23 +52,30 @@ export function GameSummaryCard({
   return (
     <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            {game.mode} · objetivo {game.targetScore}
-          </p>
-          {badgeLabel ? (
-            <p className="mt-2 inline-flex rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-ink">
-              {badgeLabel}
+        <div className="flex-1">
+          <div className="flex flex-wrap gap-2">
+            <p className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-600">
+              {game.mode} · objetivo {game.targetScore}
             </p>
-          ) : null}
-          <h3 className="mt-2 text-2xl font-black tracking-tight">
-            Azul {game.blueScore} - {game.redScore} Rojo
-          </h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Estado: <span className="font-semibold">{game.status}</span>
-          </p>
+            <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-ink ring-1 ring-slate-200">
+              {getStatusLabel(game.status)}
+            </p>
+            {badgeLabel ? (
+              <p className="inline-flex rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-ink">
+                {badgeLabel}
+              </p>
+            ) : null}
+          </div>
+
+          <CompactScoreboard
+            blueScore={game.blueScore}
+            redScore={game.redScore}
+            size="sm"
+            className="mt-4 rounded-[1.4rem]"
+          />
+
           {activityLabel ? (
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-4 text-sm text-slate-600">
               Última actividad: {activityLabel}
             </p>
           ) : null}
@@ -68,12 +88,14 @@ export function GameSummaryCard({
           ) : null}
         </div>
 
-        <Link
-          to={to}
-          className="inline-flex rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white"
-        >
-          {actionLabel}
-        </Link>
+        <div className="flex w-full lg:w-auto">
+          <Link
+            to={to}
+            className="inline-flex w-full items-center justify-center rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white lg:w-auto"
+          >
+            {actionLabel}
+          </Link>
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">

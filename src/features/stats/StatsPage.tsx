@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import { formatPercent } from '../../utils/format';
 import { useGames } from '../games/hooks/useGames';
@@ -9,10 +10,47 @@ export function StatsPage() {
   const { players, isLoading: arePlayersLoading, error: playersError } = usePlayers();
   const { games, isLoading: areGamesLoading, error: gamesError } = useGames();
   const { rounds, isLoading: areRoundsLoading, error: roundsError } = useAllRounds();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortKey, setSortKey] = useState<'victories' | 'accuracy' | 'rawScore' | 'gamesPlayed'>(
+    'victories',
+  );
 
   const isLoading = arePlayersLoading || areGamesLoading || areRoundsLoading;
   const error = playersError ?? gamesError ?? roundsError;
   const stats = aggregateGlobalStats(players, games, rounds);
+  const finishedGames = games.filter((game) => game.status === 'finished').length;
+  const totalRounds = rounds.length;
+  const totalBags = stats.players.reduce((sum, player) => sum + player.bagsThrown, 0);
+  const topWinner = stats.players[0] ?? null;
+  const topAccuracyPlayer = [...stats.players]
+    .filter((player) => player.bagsThrown > 0)
+    .sort((left, right) => right.accuracy - left.accuracy)[0] ?? null;
+  const normalizedSearch = searchTerm.trim().toLocaleLowerCase('es-ES');
+  const sortedPlayers = useMemo(() => {
+    const filteredPlayers = stats.players.filter((player) => {
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      return player.playerName.toLocaleLowerCase('es-ES').includes(normalizedSearch);
+    });
+
+    return [...filteredPlayers].sort((left, right) => {
+      if (sortKey === 'accuracy') {
+        return right.accuracy - left.accuracy;
+      }
+
+      if (sortKey === 'rawScore') {
+        return right.rawScore - left.rawScore;
+      }
+
+      if (sortKey === 'gamesPlayed') {
+        return right.gamesPlayed - left.gamesPlayed;
+      }
+
+      return right.victories - left.victories;
+    });
+  }, [normalizedSearch, sortKey, stats.players]);
 
   return (
     <section className="space-y-6">
@@ -45,6 +83,40 @@ export function StatsPage() {
 
       {!isLoading ? (
         <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Partidas cerradas
+              </p>
+              <p className="mt-2 text-3xl font-black tracking-tight text-ink">{finishedGames}</p>
+            </article>
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Rondas analizadas
+              </p>
+              <p className="mt-2 text-3xl font-black tracking-tight text-ink">{totalRounds}</p>
+            </article>
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Sacos lanzados
+              </p>
+              <p className="mt-2 text-3xl font-black tracking-tight text-ink">{totalBags}</p>
+            </article>
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Mejor acierto
+              </p>
+              <p className="mt-2 text-xl font-black tracking-tight text-ink">
+                {topAccuracyPlayer?.playerName ?? 'Sin datos'}
+              </p>
+              {topAccuracyPlayer ? (
+                <p className="mt-2 text-sm text-slate-600">
+                  {formatPercent(topAccuracyPlayer.accuracy)}
+                </p>
+              ) : null}
+            </article>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-2">
             {stats.colors.map((color) => (
               <article
@@ -72,11 +144,132 @@ export function StatsPage() {
             ))}
           </div>
 
+          <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Líder actual
+              </p>
+              <h3 className="mt-3 text-3xl font-black tracking-tight text-ink">
+                {topWinner?.playerName ?? 'Sin resultados'}
+              </h3>
+              {topWinner ? (
+                <div className="mt-4 flex flex-wrap gap-2 text-sm">
+                  <span className="rounded-full bg-slate-100 px-4 py-2 font-semibold text-slate-700">
+                    Victorias {topWinner.victories}
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-4 py-2 font-semibold text-slate-700">
+                    Partidas {topWinner.gamesPlayed}
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-4 py-2 font-semibold text-slate-700">
+                    Acierto {formatPercent(topWinner.accuracy)}
+                  </span>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-600">
+                  Aún no hay estadísticas acumuladas.
+                </p>
+              )}
+            </article>
+
+            <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Buscar y ordenar
+                  </p>
+                  <h3 className="mt-2 text-xl font-black tracking-tight text-ink">
+                    Vista de jugadores
+                  </h3>
+                </div>
+                <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+                  {sortedPlayers.length} visibles
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <input
+                  value={searchTerm}
+                  onChange={(event) => {
+                    setSearchTerm(event.target.value);
+                  }}
+                  placeholder="Buscar jugador"
+                  className="min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blueTeam"
+                />
+                <select
+                  value={sortKey}
+                  onChange={(event) => {
+                    setSortKey(event.target.value as typeof sortKey);
+                  }}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-blueTeam"
+                >
+                  <option value="victories">Ordenar por victorias</option>
+                  <option value="accuracy">Ordenar por acierto</option>
+                  <option value="rawScore">Ordenar por puntos brutos</option>
+                  <option value="gamesPlayed">Ordenar por partidas</option>
+                </select>
+              </div>
+            </article>
+          </div>
+
           <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               Jugadores
             </p>
-            <div className="mt-4 overflow-x-auto">
+
+            {sortedPlayers.length === 0 ? (
+              <p className="mt-4 text-sm text-slate-600">
+                No hay jugadores que coincidan con la búsqueda.
+              </p>
+            ) : null}
+
+            <div className="mt-4 grid gap-3 lg:hidden">
+              {sortedPlayers.map((player) => (
+                <article
+                  key={player.playerId}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-lg font-black text-ink">{player.playerName}</p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Victorias {player.victories} · Partidas {player.gamesPlayed}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+                      {formatPercent(player.accuracy)}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-700">
+                    <div className="rounded-2xl bg-white p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Cornholes
+                      </p>
+                      <p className="mt-2 font-black text-ink">{player.cornholes}</p>
+                    </div>
+                    <div className="rounded-2xl bg-white p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Woodies
+                      </p>
+                      <p className="mt-2 font-black text-ink">{player.woodies}</p>
+                    </div>
+                    <div className="rounded-2xl bg-white p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Misses
+                      </p>
+                      <p className="mt-2 font-black text-ink">{player.misses}</p>
+                    </div>
+                    <div className="rounded-2xl bg-white p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Brutos
+                      </p>
+                      <p className="mt-2 font-black text-ink">{player.rawScore}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-4 hidden overflow-x-auto lg:block">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-slate-200 text-slate-500">
                   <tr>
@@ -92,7 +285,7 @@ export function StatsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.players.map((player) => (
+                  {sortedPlayers.map((player) => (
                     <tr key={player.playerId} className="border-b border-slate-100 last:border-0">
                       <td className="px-3 py-3 font-semibold text-ink">{player.playerName}</td>
                       <td className="px-3 py-3">

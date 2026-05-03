@@ -20,6 +20,7 @@ export function RoundsHistoryCard({
   const [isOpen, setIsOpen] = useState(false);
   const [expandedRoundId, setExpandedRoundId] = useState<string | null>(null);
   const sortedRounds = useMemo(() => [...rounds].sort((a, b) => b.roundNumber - a.roundNumber), [rounds]);
+  const latestRound = sortedRounds[0] ?? null;
 
   function getRoundNet(round: Round) {
     return round.blueNetScore > 0 ? round.blueNetScore : round.redNetScore;
@@ -67,7 +68,7 @@ export function RoundsHistoryCard({
           }}
           className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
         >
-          {isOpen ? 'Ocultar' : 'Ver rondas'}
+          {isOpen ? 'Ocultar' : `Ver ${rounds.length} ronda${rounds.length === 1 ? '' : 's'}`}
         </button>
       </div>
 
@@ -76,9 +77,16 @@ export function RoundsHistoryCard({
           Todavía no se ha guardado ninguna ronda.
         </p>
       ) : !isOpen ? (
-        <p className="mt-4 text-sm text-slate-600">
-          Despliega para ver y editar rondas anteriores.
-        </p>
+        <div className="mt-4 rounded-[1.75rem] bg-slate-50 p-4">
+          <p className="text-sm font-semibold text-ink">
+            {latestRound ? `Última: ${getRoundWinnerLabel(latestRound)}` : 'Sin rondas todavía'}
+          </p>
+          <p className="mt-1 text-sm text-slate-600">
+            {latestRound
+              ? `Ronda ${latestRound.roundNumber} · Bruto ${latestRound.blueRawScore}-${latestRound.redRawScore}`
+              : 'Despliega para ver y editar rondas anteriores.'}
+          </p>
+        </div>
       ) : (
         <div className="mt-4 divide-y divide-slate-200">
           {sortedRounds.map((round) => (

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import { getFirestoreDate } from '../../utils/format';
 import { usePlayers } from '../players/hooks/usePlayers';
@@ -15,6 +16,7 @@ function getGameActivityMs(updatedAt: unknown, createdAt: unknown): number {
 export function OngoingGamesPage() {
   const { games, isLoading, error } = useGames();
   const { players } = usePlayers();
+  const [searchTerm, setSearchTerm] = useState('');
   const namesById = new Map(players.map((player) => [player.id, player.name]));
   const ongoingGames = games
     .filter((game) => game.status !== 'finished')
@@ -23,6 +25,23 @@ export function OngoingGamesPage() {
         getGameActivityMs(right.updatedAt, right.createdAt) -
         getGameActivityMs(left.updatedAt, left.createdAt),
     );
+  const normalizedSearch = searchTerm.trim().toLocaleLowerCase('es-ES');
+  const filteredGames = ongoingGames.filter((game) => {
+    if (!normalizedSearch) {
+      return true;
+    }
+
+    const haystack = [
+      game.mode,
+      `objetivo ${game.targetScore}`,
+      ...game.bluePlayerIds.map((playerId) => namesById.get(playerId) ?? playerId),
+      ...game.redPlayerIds.map((playerId) => namesById.get(playerId) ?? playerId),
+    ]
+      .join(' ')
+      .toLocaleLowerCase('es-ES');
+
+    return haystack.includes(normalizedSearch);
+  });
 
   return (
     <section className="space-y-6">
@@ -38,6 +57,20 @@ export function OngoingGamesPage() {
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
           Aquí puedes recuperar cualquier partida activa y seguir anotando rondas.
         </p>
+
+        <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <input
+            value={searchTerm}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+            }}
+            placeholder="Buscar por jugador, modo o objetivo"
+            className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blueTeam"
+          />
+          <span className="rounded-full bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+            {filteredGames.length} activa{filteredGames.length === 1 ? '' : 's'}
+          </span>
+        </div>
       </article>
 
       {isLoading ? (
@@ -59,7 +92,7 @@ export function OngoingGamesPage() {
       ) : null}
 
       <div className="grid gap-4">
-        {ongoingGames.map((game) => (
+        {filteredGames.map((game) => (
           <GameSummaryCard
             key={game.id}
             game={game}
@@ -70,6 +103,12 @@ export function OngoingGamesPage() {
           />
         ))}
       </div>
+
+      {!isLoading && ongoingGames.length > 0 && filteredGames.length === 0 ? (
+        <article className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-sm text-slate-700 shadow-card backdrop-blur">
+          No hay partidas activas que coincidan con la búsqueda.
+        </article>
+      ) : null}
     </section>
   );
 }

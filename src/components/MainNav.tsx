@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const items = [
   { to: '/', label: 'Inicio' },
@@ -18,16 +18,47 @@ export function MainNav({
   mobileOnly?: boolean;
   desktopOnly?: boolean;
 }) {
+  const { pathname } = useLocation();
+  const navRef = useRef<HTMLElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const navVisibilityClassName = mobileOnly
     ? 'lg:hidden'
     : desktopOnly
       ? 'hidden lg:block'
       : '';
-  const mobileMenuPositionClassName = mobileOnly ? 'left-0' : 'right-0';
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      if (!navRef.current) {
+        return;
+      }
+
+      const target = event.target;
+
+      if (target instanceof Node && !navRef.current.contains(target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+    };
+  }, [isOpen]);
 
   return (
-    <nav className={`relative z-50 ${navVisibilityClassName}`}>
+    <nav ref={navRef} className={`relative z-50 ${navVisibilityClassName}`}>
       <div className="flex items-center lg:hidden">
         <button
           type="button"
@@ -47,9 +78,7 @@ export function MainNav({
       </div>
 
       {isOpen ? (
-        <div
-          className={`absolute top-14 z-50 w-64 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-xl lg:hidden ${mobileMenuPositionClassName}`}
-        >
+        <div className="absolute left-0 top-14 z-50 w-64 rounded-[2rem] border border-white/70 bg-white p-3 shadow-2xl lg:hidden">
           <div className="grid gap-1">
             {items.map((item) => (
               <NavLink
@@ -59,7 +88,7 @@ export function MainNav({
                   setIsOpen(false);
                 }}
                 className={({ isActive }) =>
-                  `rounded-[1rem] px-4 py-3 text-sm font-semibold transition ${
+                  `rounded-[1.2rem] px-4 py-4 text-sm font-semibold transition ${
                     isActive
                       ? 'bg-ink text-white'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-ink'
@@ -73,16 +102,16 @@ export function MainNav({
         </div>
       ) : null}
 
-      <div className="hidden items-center gap-1 lg:flex">
+      <div className="hidden items-center gap-1 rounded-full border border-white/70 bg-white/75 p-1 shadow-sm backdrop-blur lg:flex">
         {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition ${
+              `whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold transition ${
                 isActive
                   ? 'bg-ink text-white'
-                  : 'text-slate-500 hover:bg-white/60 hover:text-ink'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-ink'
               }`
             }
           >

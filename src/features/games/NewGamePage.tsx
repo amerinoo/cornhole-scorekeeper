@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import type { GameMode, Player, TargetScore } from '../../models';
 import { usePlayers } from '../players/hooks/usePlayers';
@@ -28,6 +28,9 @@ function TeamLineupCard({
   onChange,
 }: TeamLineupCardProps) {
   const selectedCount = selectedIds.filter((playerId) => playerId.length > 0).length;
+  const selectedNames = selectedIds
+    .map((playerId) => players.find((player) => player.id === playerId)?.name)
+    .filter((name): name is string => Boolean(name));
 
   return (
     <article className={`rounded-3xl border p-5 ${accentClassName}`}>
@@ -39,6 +42,11 @@ function TeamLineupCard({
           <h3 className="mt-2 text-xl font-black tracking-tight">
             {selectedCount}/{selectedIds.length} seleccionados
           </h3>
+          <p className="mt-2 text-sm text-slate-600">
+            {selectedNames.length > 0
+              ? selectedNames.join(' · ')
+              : 'Todavía no hay jugadores asignados.'}
+          </p>
         </div>
       </div>
 
@@ -103,6 +111,11 @@ export function NewGamePage() {
     (playerId) => playerId.length > 0,
   );
   const canCreateGame = players.length >= playersPerTeam * 2;
+  const totalRequiredPlayers = playersPerTeam * 2;
+  const selectedPlayersCount =
+    normalizedBluePlayerIds.length + normalizedRedPlayerIds.length;
+  const missingSelections = Math.max(0, totalRequiredPlayers - selectedPlayersCount);
+  const isReadyToCreate = canCreateGame && missingSelections === 0;
 
   function updateSelection(
     slotIndex: number,
@@ -172,6 +185,27 @@ export function NewGamePage() {
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
           Selecciona formato, puntuación objetivo y jugadores de cada equipo.
         </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Paso 1
+            </p>
+            <p className="mt-2 text-sm font-semibold text-ink">Modo y objetivo</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Paso 2
+            </p>
+            <p className="mt-2 text-sm font-semibold text-ink">Asignar equipos</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Paso 3
+            </p>
+            <p className="mt-2 text-sm font-semibold text-ink">Crear y jugar</p>
+          </div>
+        </div>
       </article>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
@@ -244,7 +278,46 @@ export function NewGamePage() {
 
         {!isLoading && players.length === 0 ? (
           <article className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-            Crea jugadores antes de iniciar una partida.
+            <p className="font-semibold">Crea jugadores antes de iniciar una partida.</p>
+            <Link
+              to="/jugadores"
+              className="mt-4 inline-flex rounded-2xl border border-amber-300 bg-white px-4 py-3 font-semibold text-amber-900"
+            >
+              Ir a jugadores
+            </Link>
+          </article>
+        ) : null}
+
+        {!isLoading && players.length > 0 ? (
+          <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Resumen
+                </p>
+                <h3 className="mt-2 text-xl font-black tracking-tight">
+                  {mode} · a {targetScore}
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="rounded-full bg-blueTeam/10 px-4 py-2 font-semibold text-blueTeam">
+                  Azul {normalizedBluePlayerIds.length}/{playersPerTeam}
+                </span>
+                <span className="rounded-full bg-redTeam/10 px-4 py-2 font-semibold text-redTeam">
+                  Rojo {normalizedRedPlayerIds.length}/{playersPerTeam}
+                </span>
+                <span className="rounded-full bg-slate-100 px-4 py-2 font-semibold text-slate-700">
+                  Disponibles {players.length}
+                </span>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-slate-600">
+              {isReadyToCreate
+                ? 'Todo listo para crear la partida.'
+                : canCreateGame
+                  ? `Faltan ${missingSelections} selección${missingSelections === 1 ? '' : 'es'} para empezar.`
+                  : `Necesitas ${totalRequiredPlayers} jugadores para este modo.`}
+            </p>
           </article>
         ) : null}
 
@@ -301,13 +374,22 @@ export function NewGamePage() {
           </article>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={!canCreateGame || isSubmitting}
-          className="w-full rounded-3xl bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? 'Creando partida...' : 'Crear partida'}
-        </button>
+        <div className="sticky bottom-4 rounded-[2rem] bg-white/95 p-2 shadow-xl backdrop-blur">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="px-3 text-sm text-slate-600">
+              {isReadyToCreate
+                ? 'La partida se abrirá justo después de crearla.'
+                : 'Completa la configuración para habilitar el inicio.'}
+            </p>
+            <button
+              type="submit"
+              disabled={!isReadyToCreate || isSubmitting}
+              className="w-full rounded-[1.4rem] bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-56"
+            >
+              {isSubmitting ? 'Creando partida...' : 'Crear partida'}
+            </button>
+          </div>
+        </div>
       </form>
     </section>
   );

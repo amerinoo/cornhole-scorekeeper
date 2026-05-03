@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import { usePlayerActions } from './hooks/usePlayerActions';
 import { usePlayers } from './hooks/usePlayers';
@@ -9,6 +10,18 @@ export function PlayersPage() {
   const [newName, setNewName] = useState('');
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const sortedPlayers = useMemo(
+    () =>
+      [...players].sort((left, right) =>
+        left.name.localeCompare(right.name, 'es-ES', { sensitivity: 'base' }),
+      ),
+    [players],
+  );
+  const normalizedSearch = searchTerm.trim().toLocaleLowerCase('es-ES');
+  const filteredPlayers = sortedPlayers.filter((player) =>
+    player.name.toLocaleLowerCase('es-ES').includes(normalizedSearch),
+  );
 
   async function handleCreatePlayer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +48,12 @@ export function PlayersPage() {
   }
 
   async function handleDeletePlayer(playerId: string) {
+    const player = players.find((currentPlayer) => currentPlayer.id === playerId);
+
+    if (!player || !window.confirm(`Borrar a ${player.name}?`)) {
+      return;
+    }
+
     await actions.remove(playerId);
   }
 
@@ -80,6 +99,21 @@ export function PlayersPage() {
           <p className="mt-3 text-sm font-medium text-red-700">{actions.error}</p>
         ) : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+          <p className="font-semibold text-ink">Consejo</p>
+          <p className="mt-2">
+            Con 2 jugadores ya puedes crear una partida 1v1. Con 4, también 2v2.
+          </p>
+          {players.length >= 2 ? (
+            <Link
+              to="/partidas/nueva"
+              className="mt-4 inline-flex rounded-2xl bg-ink px-4 py-3 font-semibold text-white"
+            >
+              Ir a nueva partida
+            </Link>
+          ) : null}
+        </div>
       </article>
 
       <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
@@ -92,6 +126,14 @@ export function PlayersPage() {
               {players.length} jugador{players.length === 1 ? '' : 'es'}
             </h3>
           </div>
+          <input
+            value={searchTerm}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+            }}
+            placeholder="Buscar jugador"
+            className="min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blueTeam"
+          />
         </div>
 
         {isLoading ? (
@@ -104,8 +146,14 @@ export function PlayersPage() {
           </p>
         ) : null}
 
+        {players.length > 0 && filteredPlayers.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-600">
+            No hay jugadores que coincidan con la búsqueda.
+          </p>
+        ) : null}
+
         <div className="mt-4 grid gap-3">
-          {players.map((player) => {
+          {filteredPlayers.map((player) => {
             const isEditing = editingPlayerId === player.id;
 
             return (

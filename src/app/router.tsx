@@ -4,39 +4,35 @@ import { AppLayout } from './AppLayout';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RulesPage } from './pages/RulesPage';
+import { GamePage } from '../features/games/GamePage';
 
 const PlayersPage = lazy(async () => {
-  const module = await import('../features/players');
+  const module = await import('../features/players/PlayersPage');
   return { default: module.PlayersPage };
 });
 
 const NewGamePage = lazy(async () => {
-  const module = await import('../features/games');
+  const module = await import('../features/games/NewGamePage');
   return { default: module.NewGamePage };
 });
 
 const OngoingGamesPage = lazy(async () => {
-  const module = await import('../features/games');
+  const module = await import('../features/games/OngoingGamesPage');
   return { default: module.OngoingGamesPage };
 });
 
-const GamePage = lazy(async () => {
-  const module = await import('../features/games');
-  return { default: module.GamePage };
-});
-
 const GameDisplayPage = lazy(async () => {
-  const module = await import('../features/games');
+  const module = await import('../features/games/GameDisplayPage');
   return { default: module.GameDisplayPage };
 });
 
 const HistoryPage = lazy(async () => {
-  const module = await import('../features/games');
+  const module = await import('../features/games/HistoryPage');
   return { default: module.HistoryPage };
 });
 
 const StatsPage = lazy(async () => {
-  const module = await import('../features/stats');
+  const module = await import('../features/stats/StatsPage');
   return { default: module.StatsPage };
 });
 
@@ -91,7 +87,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'game/:gameId',
-        element: withSuspense(<GamePage />),
+        element: <GamePage />,
       },
       {
         path: 'historial',

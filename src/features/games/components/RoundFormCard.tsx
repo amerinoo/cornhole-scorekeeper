@@ -1,5 +1,5 @@
-import type { Game, PlayerThrowInput, RoundCalculation } from '../../../models';
-import { getBagsPerPlayer } from '../../../utils/scoring';
+import type { Game, PlayerThrowInput, RoundCalculation } from "../../../models";
+import { getBagsPerPlayer } from "../../../utils/scoring";
 
 type RoundFormCardProps = {
   game: Game;
@@ -14,9 +14,9 @@ type RoundFormCardProps = {
   isSubmitting: boolean;
   editingRoundNumber: number | null;
   onChange: (
-    team: 'blue' | 'red',
+    team: "blue" | "red",
     playerId: string,
-    field: 'cornholes' | 'woodies',
+    field: "cornholes" | "woodies",
     value: number,
   ) => void;
   onSubmit: () => void;
@@ -29,15 +29,19 @@ type ThrowGroupProps = {
   accentTextClassName: string;
   dividerClassName: string;
   inputs: PlayerThrowInput[];
-  previewThrows: RoundCalculation['blueThrows'];
+  previewThrows: RoundCalculation["blueThrows"];
   bagsPerPlayer: number;
   namesById: Map<string, string>;
   onChange: (
     playerId: string,
-    field: 'cornholes' | 'woodies',
+    field: "cornholes" | "woodies",
     value: number,
   ) => void;
 };
+
+function getUsedBags(input: PlayerThrowInput): number {
+  return input.cornholes + input.woodies;
+}
 
 function ValueControls({
   label,
@@ -60,30 +64,32 @@ function ValueControls({
         {label}
       </span>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: total }, (_, index) => index + 1).map((preset) => {
-          const isSelected = value === preset;
-          const isDisabled = preset > maxSelectable;
+        {Array.from({ length: total }, (_, index) => index + 1).map(
+          (preset) => {
+            const isSelected = value === preset;
+            const isDisabled = preset > maxSelectable;
 
-          return (
-            <button
-              key={preset}
-              type="button"
-              disabled={!interactive || isDisabled}
-              onClick={() => {
-                onChange?.(isSelected ? 0 : preset);
-              }}
-              className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black transition ${
-                isSelected
-                  ? 'bg-ink text-white'
-                  : isDisabled
-                    ? 'border border-slate-200 bg-slate-100 text-slate-300'
-                    : 'border border-slate-200 bg-white text-slate-700'
-              } ${interactive ? '' : 'cursor-default'}`}
-            >
-              {preset}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={preset}
+                type="button"
+                disabled={!interactive || isDisabled}
+                onClick={() => {
+                  onChange?.(isSelected ? 0 : preset);
+                }}
+                className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-black transition ${
+                  isSelected
+                    ? "bg-ink text-white"
+                    : isDisabled
+                      ? "border border-slate-200 bg-slate-100 text-slate-300"
+                      : "border border-slate-200 bg-white text-slate-700"
+                } ${interactive ? "" : "cursor-default"}`}
+              >
+                {preset}
+              </button>
+            );
+          },
+        )}
       </div>
     </div>
   );
@@ -102,7 +108,9 @@ function ThrowGroup({
 }: ThrowGroupProps) {
   return (
     <article className={`rounded-[2rem] border px-5 py-4 ${accentClassName}`}>
-      <p className={`text-sm font-black uppercase tracking-[0.2em] ${accentTextClassName}`}>
+      <p
+        className={`text-sm font-black uppercase tracking-[0.2em] ${accentTextClassName}`}
+      >
         {title}
       </p>
       <div className="mt-3">
@@ -110,16 +118,23 @@ function ThrowGroup({
           const previewThrow = previewThrows[index];
           const maxCornholes = bagsPerPlayer - playerThrow.woodies;
           const maxWoodies = bagsPerPlayer - playerThrow.cornholes;
+          const usedBags = getUsedBags(playerThrow);
 
           return (
             <div
               key={playerThrow.playerId}
-              className={`py-4 ${index === 0 ? '' : `border-t ${dividerClassName}`}`}
+              className={`py-4 ${index === 0 ? "" : `border-t ${dividerClassName}`}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="text-base font-bold text-ink">
-                  {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
-                </p>
+                <div>
+                  <p className="text-base font-bold text-ink">
+                    {namesById.get(playerThrow.playerId) ??
+                      playerThrow.playerId}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    {usedBags}/{bagsPerPlayer} sacos asignados
+                  </p>
+                </div>
                 <div className="min-w-12 rounded-full bg-ink px-3 py-1 text-center text-sm font-black text-white">
                   {previewThrow?.rawScore ?? 0}
                 </div>
@@ -132,7 +147,7 @@ function ThrowGroup({
                   total={bagsPerPlayer}
                   maxSelectable={maxCornholes}
                   onChange={(value) => {
-                    onChange(playerThrow.playerId, 'cornholes', value);
+                    onChange(playerThrow.playerId, "cornholes", value);
                   }}
                 />
                 <ValueControls
@@ -141,7 +156,7 @@ function ThrowGroup({
                   total={bagsPerPlayer}
                   maxSelectable={maxWoodies}
                   onChange={(value) => {
-                    onChange(playerThrow.playerId, 'woodies', value);
+                    onChange(playerThrow.playerId, "woodies", value);
                   }}
                 />
               </div>
@@ -169,7 +184,31 @@ export function RoundFormCard({
   const bagsPerPlayer = getBagsPerPlayer(game.mode);
   const heading = editingRoundNumber
     ? `Editar ronda ${editingRoundNumber}`
-    : 'Registrar nueva ronda';
+    : "Registrar nueva ronda";
+  const totalBags =
+    bagsPerPlayer * (formState.blueThrows.length + formState.redThrows.length);
+  const blueUsedBags = formState.blueThrows.reduce(
+    (sum, playerThrow) => sum + getUsedBags(playerThrow),
+    0,
+  );
+  const redUsedBags = formState.redThrows.reduce(
+    (sum, playerThrow) => sum + getUsedBags(playerThrow),
+    0,
+  );
+  const usedBags = blueUsedBags + redUsedBags;
+  const allBagsUsed = usedBags === totalBags;
+  const roundPreviewValue =
+    preview.blueNetScore > 0
+      ? `+${preview.blueNetScore}`
+      : preview.redNetScore > 0
+        ? `+${preview.redNetScore}`
+        : "0";
+  const roundPreviewClassName =
+    preview.blueNetScore > 0
+      ? "bg-blueTeam text-white"
+      : preview.redNetScore > 0
+        ? "bg-redTeam text-white"
+        : "bg-slate-100 text-slate-700";
 
   return (
     <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
@@ -180,7 +219,8 @@ export function RoundFormCard({
           </p>
           <h3 className="mt-2 text-2xl font-black tracking-tight">{heading}</h3>
           <p className="mt-2 text-sm text-slate-600">
-            Cada jugador lanza {bagsPerPlayer} saco{bagsPerPlayer === 1 ? '' : 's'} en modo {game.mode}.
+            Cada jugador lanza {bagsPerPlayer} saco
+            {bagsPerPlayer === 1 ? "" : "s"} en modo {game.mode}.
           </p>
         </div>
 
@@ -195,6 +235,48 @@ export function RoundFormCard({
         ) : null}
       </div>
 
+      <div className="sticky top-4 z-10 mt-6 rounded-[1.6rem] border border-white/70 bg-white/95 p-4 shadow-card backdrop-blur">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+          Resumen provisional
+        </p>
+
+        <div className="mt-3 grid grid-cols-3 items-stretch gap-3">
+          <div
+            className={`col-span-1 flex min-w-0 flex-col justify-center items-center rounded-[1.4rem] px-5 py-4 text-left ${roundPreviewClassName}`}
+          >
+            <p className="mt-1 text-4xl font-black leading-none tracking-tight">
+              {roundPreviewValue}
+            </p>
+          </div>
+
+          <div className="col-span-2 flex min-w-0 flex-col gap-3">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 text-sm">
+              <span className="rounded-full bg-slate-100 px-3 py-2 font-semibold text-slate-700 whitespace-nowrap">
+                Sacos {usedBags}/{totalBags}
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+                <span className="whitespace-nowrap">
+                  Bruto {preview.blueRawScore}-{preview.redRawScore}
+                </span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={isSubmitting || !allBagsUsed}
+              className="inline-flex w-full items-center justify-center rounded-[1.2rem] bg-ink px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting
+                ? "Guardando..."
+                : editingRoundNumber
+                  ? "Guardar cambios"
+                  : "Guardar ronda"}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-6 grid gap-4 xl:grid-cols-2">
         <ThrowGroup
           title="Equipo Azul"
@@ -206,7 +288,7 @@ export function RoundFormCard({
           bagsPerPlayer={bagsPerPlayer}
           namesById={namesById}
           onChange={(playerId, field, value) => {
-            onChange('blue', playerId, field, value);
+            onChange("blue", playerId, field, value);
           }}
         />
         <ThrowGroup
@@ -219,7 +301,7 @@ export function RoundFormCard({
           bagsPerPlayer={bagsPerPlayer}
           namesById={namesById}
           onChange={(playerId, field, value) => {
-            onChange('red', playerId, field, value);
+            onChange("red", playerId, field, value);
           }}
         />
       </div>
@@ -237,21 +319,6 @@ export function RoundFormCard({
           {submitError}
         </div>
       ) : null}
-
-      <div className="sticky bottom-4 mt-6 rounded-[2rem] bg-white/95 p-2 shadow-xl backdrop-blur">
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={isSubmitting}
-          className="w-full rounded-[1.4rem] bg-ink px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting
-            ? 'Guardando ronda...'
-            : editingRoundNumber
-              ? 'Guardar cambios de la ronda'
-              : 'Guardar ronda'}
-        </button>
-      </div>
     </article>
   );
 }
