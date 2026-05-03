@@ -1,4 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import {
+  CornholeIcon,
+  MissIcon,
+  WoodieIcon,
+} from '../../../components/icons';
 import type { Round } from '../../../models';
 import { tryFormatFirestoreDate } from '../../../utils/format';
 
@@ -9,6 +14,21 @@ type RoundsHistoryCardProps = {
   isEditable: boolean;
   onEdit: (round: Round) => void;
 };
+
+function ThrowStat({
+  icon,
+  value,
+}: {
+  icon: ReactNode;
+  value: number;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+      <span className="text-slate-500">{icon}</span>
+      <span className="font-semibold text-slate-700">{value}</span>
+    </span>
+  );
+}
 
 export function RoundsHistoryCard({
   rounds,
@@ -155,12 +175,29 @@ export function RoundsHistoryCard({
                       </p>
                       <div className="mt-2 grid gap-2">
                         {round.blueThrows.map((playerThrow) => (
-                          <p key={playerThrow.playerId} className="text-sm text-slate-700">
+                          <div
+                            key={playerThrow.playerId}
+                            className="flex flex-wrap items-center gap-2 text-sm text-slate-700"
+                          >
                             <span className="font-semibold">
                               {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
                             </span>
-                            {' · '}C {playerThrow.cornholes} · W {playerThrow.woodies} · M {playerThrow.misses} · T {playerThrow.rawScore}
-                          </p>
+                            <ThrowStat
+                              icon={<CornholeIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.cornholes}
+                            />
+                            <ThrowStat
+                              icon={<WoodieIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.woodies}
+                            />
+                            <ThrowStat
+                              icon={<MissIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.misses}
+                            />
+                            <span className="text-sm font-semibold text-slate-600">
+                              {playerThrow.rawScore} pts
+                            </span>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -171,12 +208,29 @@ export function RoundsHistoryCard({
                       </p>
                       <div className="mt-2 grid gap-2">
                         {round.redThrows.map((playerThrow) => (
-                          <p key={playerThrow.playerId} className="text-sm text-slate-700">
+                          <div
+                            key={playerThrow.playerId}
+                            className="flex flex-wrap items-center gap-2 text-sm text-slate-700"
+                          >
                             <span className="font-semibold">
                               {namesById.get(playerThrow.playerId) ?? playerThrow.playerId}
                             </span>
-                            {' · '}C {playerThrow.cornholes} · W {playerThrow.woodies} · M {playerThrow.misses} · T {playerThrow.rawScore}
-                          </p>
+                            <ThrowStat
+                              icon={<CornholeIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.cornholes}
+                            />
+                            <ThrowStat
+                              icon={<WoodieIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.woodies}
+                            />
+                            <ThrowStat
+                              icon={<MissIcon className="h-3.5 w-3.5" />}
+                              value={playerThrow.misses}
+                            />
+                            <span className="text-sm font-semibold text-slate-600">
+                              {playerThrow.rawScore} pts
+                            </span>
+                          </div>
                         ))}
                       </div>
                     </div>

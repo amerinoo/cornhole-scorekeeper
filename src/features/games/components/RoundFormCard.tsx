@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import type { Game, PlayerThrowInput, RoundCalculation } from "../../../models";
+import { CornholeIcon, PointsIcon, WoodieIcon } from "../../../components/icons";
 import { getBagsPerPlayer } from "../../../utils/scoring";
 
 type RoundFormCardProps = {
@@ -45,6 +47,7 @@ function getUsedBags(input: PlayerThrowInput): number {
 
 function ValueControls({
   label,
+  icon,
   value,
   total,
   maxSelectable,
@@ -52,6 +55,7 @@ function ValueControls({
   interactive = true,
 }: {
   label: string;
+  icon: ReactNode;
   value: number;
   total: number;
   maxSelectable: number;
@@ -60,8 +64,11 @@ function ValueControls({
 }) {
   return (
     <div className="space-y-2">
-      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-        {label}
+      <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-slate-600 ring-1 ring-slate-200">
+          {icon}
+        </span>
+        <span>{label}</span>
       </span>
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: total }, (_, index) => index + 1).map(
@@ -135,14 +142,18 @@ function ThrowGroup({
                     {usedBags}/{bagsPerPlayer} sacos asignados
                   </p>
                 </div>
-                <div className="min-w-12 rounded-full bg-ink px-3 py-1 text-center text-sm font-black text-white">
-                  {previewThrow?.rawScore ?? 0}
+                <div className="flex items-center justify-center text-ink">
+                  <PointsIcon
+                    className="h-12 w-12"
+                    value={previewThrow?.rawScore ?? 0}
+                  />
                 </div>
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <ValueControls
-                  label="Cornholes (+3)"
+                  label="Cornholes"
+                  icon={<CornholeIcon className="h-3.5 w-3.5" />}
                   value={playerThrow.cornholes}
                   total={bagsPerPlayer}
                   maxSelectable={maxCornholes}
@@ -151,7 +162,8 @@ function ThrowGroup({
                   }}
                 />
                 <ValueControls
-                  label="Woodies (+1)"
+                  label="Woodies"
+                  icon={<WoodieIcon className="h-3.5 w-3.5" />}
                   value={playerThrow.woodies}
                   total={bagsPerPlayer}
                   maxSelectable={maxWoodies}

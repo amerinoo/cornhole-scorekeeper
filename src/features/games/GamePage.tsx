@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { CompactScoreboard } from "../../components/CompactScoreboard";
 import { FirebaseStatusBanner } from "../../components/FirebaseStatusBanner";
+import { CornholeIcon, MissIcon, WoodieIcon } from "../../components/icons";
 import type { Game, Round } from "../../models";
 import { formatPercent } from "../../utils/format";
 import {
@@ -40,6 +41,24 @@ function PlayerChips({
         </span>
       ))}
     </div>
+  );
+}
+
+function InlineStat({
+  icon,
+  value,
+  detail,
+}: {
+  icon: ReactNode;
+  value: number;
+  detail?: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200">
+      <span className="text-slate-500">{icon}</span>
+      <span className="font-semibold text-slate-700">{value}</span>
+      {detail ? <span className="text-slate-500">{detail}</span> : null}
+    </span>
   );
 }
 
@@ -543,15 +562,21 @@ export function GamePage() {
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
-                  <span>
-                    C {team.cornholes} · {formatPercent(team.cornholeRate)}
-                  </span>
-                  <span>
-                    W {team.woodies} · {formatPercent(team.woodyRate)}
-                  </span>
-                  <span>
-                    M {team.misses} · {formatPercent(team.missRate)}
-                  </span>
+                  <InlineStat
+                    icon={<CornholeIcon className="h-4 w-4" />}
+                    value={team.cornholes}
+                    detail={formatPercent(team.cornholeRate)}
+                  />
+                  <InlineStat
+                    icon={<WoodieIcon className="h-4 w-4" />}
+                    value={team.woodies}
+                    detail={formatPercent(team.woodyRate)}
+                  />
+                  <InlineStat
+                    icon={<MissIcon className="h-4 w-4" />}
+                    value={team.misses}
+                    detail={formatPercent(team.missRate)}
+                  />
                   <span>S {team.bagsThrown}</span>
                 </div>
               </div>
@@ -563,11 +588,17 @@ export function GamePage() {
               <thead className="border-b border-slate-200 text-slate-500">
                 <tr>
                   <th className="px-2 py-2 font-semibold">Jugador</th>
-                  <th className="px-2 py-2 font-semibold">C</th>
-                  <th className="px-2 py-2 font-semibold">W</th>
-                  <th className="px-2 py-2 font-semibold">M</th>
+                  <th className="px-2 py-2 font-semibold">
+                    <CornholeIcon className="h-4 w-4" />
+                  </th>
+                  <th className="px-2 py-2 font-semibold">
+                    <WoodieIcon className="h-4 w-4" />
+                  </th>
+                  <th className="px-2 py-2 font-semibold">
+                    <MissIcon className="h-4 w-4" />
+                  </th>
                   <th className="px-2 py-2 font-semibold">S</th>
-                  <th className="px-2 py-2 font-semibold">T</th>
+                  <th className="px-2 py-2 font-semibold">Pts</th>
                   <th className="px-2 py-2 font-semibold">Acierto</th>
                 </tr>
               </thead>

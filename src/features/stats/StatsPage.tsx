@@ -1,10 +1,30 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
+import {
+  CornholeIcon,
+  MissIcon,
+  WoodieIcon,
+} from '../../components/icons';
 import { formatPercent } from '../../utils/format';
 import { useGames } from '../games/hooks/useGames';
 import { usePlayers } from '../players/hooks/usePlayers';
 import { aggregateGlobalStats } from './aggregation';
 import { useAllRounds } from './hooks/useAllRounds';
+
+function StatLabel({
+  icon,
+  label,
+}: {
+  icon: ReactNode;
+  label: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="text-slate-500">{icon}</span>
+      <span>{label}</span>
+    </span>
+  );
+}
 
 export function StatsPage() {
   const { players, isLoading: arePlayersLoading, error: playersError } = usePlayers();
@@ -242,19 +262,28 @@ export function StatsPage() {
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-700">
                     <div className="rounded-2xl bg-white p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Cornholes
+                        <StatLabel
+                          icon={<CornholeIcon className="h-4 w-4" />}
+                          label="Cornholes"
+                        />
                       </p>
                       <p className="mt-2 font-black text-ink">{player.cornholes}</p>
                     </div>
                     <div className="rounded-2xl bg-white p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Woodies
+                        <StatLabel
+                          icon={<WoodieIcon className="h-4 w-4" />}
+                          label="Woodies"
+                        />
                       </p>
                       <p className="mt-2 font-black text-ink">{player.woodies}</p>
                     </div>
                     <div className="rounded-2xl bg-white p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Misses
+                        <StatLabel
+                          icon={<MissIcon className="h-4 w-4" />}
+                          label="Misses"
+                        />
                       </p>
                       <p className="mt-2 font-black text-ink">{player.misses}</p>
                     </div>
@@ -274,9 +303,24 @@ export function StatsPage() {
                 <thead className="border-b border-slate-200 text-slate-500">
                   <tr>
                     <th className="px-3 py-3 font-semibold">Jugador</th>
-                    <th className="px-3 py-3 font-semibold">Cornholes</th>
-                    <th className="px-3 py-3 font-semibold">Woodies</th>
-                    <th className="px-3 py-3 font-semibold">Misses</th>
+                    <th className="px-3 py-3 font-semibold">
+                      <StatLabel
+                        icon={<CornholeIcon className="h-4 w-4" />}
+                        label="Cornholes"
+                      />
+                    </th>
+                    <th className="px-3 py-3 font-semibold">
+                      <StatLabel
+                        icon={<WoodieIcon className="h-4 w-4" />}
+                        label="Woodies"
+                      />
+                    </th>
+                    <th className="px-3 py-3 font-semibold">
+                      <StatLabel
+                        icon={<MissIcon className="h-4 w-4" />}
+                        label="Misses"
+                      />
+                    </th>
                     <th className="px-3 py-3 font-semibold">Sacos</th>
                     <th className="px-3 py-3 font-semibold">Brutos</th>
                     <th className="px-3 py-3 font-semibold">Victorias</th>

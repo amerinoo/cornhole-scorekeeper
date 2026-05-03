@@ -1,3 +1,5 @@
+import { CornholeIcon, MissIcon, WoodieIcon } from "../../components/icons";
+
 const scoringItems = [
   "Cornhole: 3 puntos",
   "Woody: 1 punto",
@@ -102,24 +104,39 @@ export function RulesPage() {
               Qué significa cada tiro
             </p>
             <div className="mt-4 space-y-4">
-              <div>
-                <p className="text-lg font-black text-blueTeam">Cornhole</p>
-                <p className="mt-1 text-sm text-slate-700">
-                  El saco entra por el agujero. Vale 3 puntos.
-                </p>
+              <div className="flex gap-3">
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blueTeam/8 text-blueTeam">
+                  <CornholeIcon className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="text-lg font-black text-blueTeam">Cornhole</p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    El saco entra por el agujero. Vale 3 puntos.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-lg font-black text-redTeam">Woody</p>
-                <p className="mt-1 text-sm text-slate-700">
-                  El saco se queda sobre la tabla. Vale 1 punto.
-                </p>
+              <div className="flex gap-3">
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-redTeam/8 text-redTeam">
+                  <WoodieIcon className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="text-lg font-black text-redTeam">Woody</p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    El saco se queda sobre la tabla. Vale 1 punto.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-lg font-black text-ink">Miss</p>
-                <p className="mt-1 text-sm text-slate-700">
-                  El saco no puntúa. Vale 0 puntos y la app lo calcula
-                  automáticamente.
-                </p>
+              <div className="flex gap-3">
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-ink">
+                  <MissIcon className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="text-lg font-black text-ink">Miss</p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    El saco no puntúa. Vale 0 puntos y la app lo calcula
+                    automáticamente.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
