@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseStatusBanner } from '../../components/FirebaseStatusBanner';
 import type { GameMode, Player, TargetScore } from '../../models';
@@ -6,23 +6,29 @@ import { usePlayers } from '../players/hooks/usePlayers';
 import { useCreateGame } from './hooks/useCreateGame';
 import { validateCreateGameInput } from './validation';
 
-type TeamSelectorProps = {
+type TeamLineupCardProps = {
   title: string;
   accentClassName: string;
   players: Player[];
   selectedIds: string[];
-  maxSelections: number;
-  onToggle: (playerId: string) => void;
+  opposingIds: string[];
+  onChange: (slotIndex: number, playerId: string) => void;
 };
 
-function TeamSelector({
+function createEmptySelections(count: number): string[] {
+  return Array.from({ length: count }, () => '');
+}
+
+function TeamLineupCard({
   title,
   accentClassName,
   players,
   selectedIds,
-  maxSelections,
-  onToggle,
-}: TeamSelectorProps) {
+  opposingIds,
+  onChange,
+}: TeamLineupCardProps) {
+  const selectedCount = selectedIds.filter((playerId) => playerId.length > 0).length;
+
   return (
     <article className={`rounded-3xl border p-5 ${accentClassName}`}>
       <div className="flex items-center justify-between gap-3">
@@ -31,33 +37,46 @@ function TeamSelector({
             {title}
           </p>
           <h3 className="mt-2 text-xl font-black tracking-tight">
-            {selectedIds.length}/{maxSelections} seleccionados
+            {selectedCount}/{selectedIds.length} seleccionados
           </h3>
         </div>
       </div>
 
       <div className="mt-4 grid gap-3">
-        {players.map((player) => {
-          const isSelected = selectedIds.includes(player.id);
-
-          return (
-            <button
-              key={player.id}
-              type="button"
-              onClick={() => {
-                onToggle(player.id);
+        {selectedIds.map((selectedId, slotIndex) => (
+          <label key={`${title}-${slotIndex}`} className="grid gap-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Jugador {slotIndex + 1}
+            </span>
+            <select
+              value={selectedId}
+              onChange={(event) => {
+                onChange(slotIndex, event.target.value);
               }}
-              className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                isSelected
-                  ? 'border-ink bg-ink text-white'
-                  : 'border-slate-200 bg-white text-slate-700'
-              }`}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-ink"
             >
-              {player.name}
-            </button>
-          );
-        })}
+              <option value="">Selecciona jugador</option>
+              {players.map((player) => {
+                const isTakenBySameTeam =
+                  selectedId !== player.id &&
+                  selectedIds.some((playerId) => playerId === player.id);
+                const isTakenByOtherTeam = opposingIds.includes(player.id);
+
+                return (
+                  <option
+                    key={player.id}
+                    value={player.id}
+                    disabled={isTakenBySameTeam || isTakenByOtherTeam}
+                  >
+                    {player.name}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+        ))}
       </div>
+
     </article>
   );
 }
@@ -68,36 +87,47 @@ export function NewGamePage() {
   const { create, isSubmitting, error: submitError } = useCreateGame();
   const [mode, setMode] = useState<GameMode>('1v1');
   const [targetScore, setTargetScore] = useState<TargetScore>(21);
-  const [bluePlayerIds, setBluePlayerIds] = useState<string[]>([]);
-  const [redPlayerIds, setRedPlayerIds] = useState<string[]>([]);
+  const [bluePlayerIds, setBluePlayerIds] = useState<string[]>(() =>
+    createEmptySelections(1),
+  );
+  const [redPlayerIds, setRedPlayerIds] = useState<string[]>(() =>
+    createEmptySelections(1),
+  );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const playersPerTeam = mode === '1v1' ? 1 : 2;
+  const normalizedBluePlayerIds = bluePlayerIds.filter(
+    (playerId) => playerId.length > 0,
+  );
+  const normalizedRedPlayerIds = redPlayerIds.filter(
+    (playerId) => playerId.length > 0,
+  );
   const canCreateGame = players.length >= playersPerTeam * 2;
 
-  const selectablePlayers = useMemo(() => players, [players]);
-
-  function toggleSelection(
+  function updateSelection(
+    slotIndex: number,
     playerId: string,
     currentIds: string[],
     opposingIds: string[],
     setter: (nextIds: string[]) => void,
   ) {
-    if (currentIds.includes(playerId)) {
-      setter(currentIds.filter((id) => id !== playerId));
+    if (playerId && opposingIds.includes(playerId)) {
       return;
     }
 
-    if (opposingIds.includes(playerId)) {
-      return;
+    const nextIds = [...currentIds];
+    nextIds[slotIndex] = playerId;
+
+    if (playerId) {
+      nextIds.forEach((currentId, currentIndex) => {
+        if (currentIndex !== slotIndex && currentId === playerId) {
+          nextIds[currentIndex] = '';
+        }
+      });
     }
 
-    if (currentIds.length >= playersPerTeam) {
-      setter([...currentIds.slice(1), playerId]);
-      return;
-    }
-
-    setter([...currentIds, playerId]);
+    setter(nextIds);
+    setValidationErrors([]);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -106,8 +136,8 @@ export function NewGamePage() {
     const validation = validateCreateGameInput({
       mode,
       targetScore,
-      bluePlayerIds,
-      redPlayerIds,
+      bluePlayerIds: normalizedBluePlayerIds,
+      redPlayerIds: normalizedRedPlayerIds,
     });
 
     if (!validation.isValid) {
@@ -119,8 +149,8 @@ export function NewGamePage() {
     const gameId = await create({
       mode,
       targetScore,
-      bluePlayerIds,
-      redPlayerIds,
+      bluePlayerIds: normalizedBluePlayerIds,
+      redPlayerIds: normalizedRedPlayerIds,
     });
 
     if (gameId) {
@@ -134,14 +164,13 @@ export function NewGamePage() {
 
       <article className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-card backdrop-blur">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Crear partida
+          Nueva partida
         </p>
         <h2 className="mt-3 text-2xl font-black tracking-tight">
-          Configura un duelo nuevo
+          Elige equipos y empieza
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Elige formato, objetivo y jugadores. Al guardar se crea el documento en
-          Firestore y se abre la pantalla de partida.
+          Selecciona formato, puntuación objetivo y jugadores de cada equipo.
         </p>
       </article>
 
@@ -157,9 +186,11 @@ export function NewGamePage() {
                   key={value}
                   type="button"
                   onClick={() => {
+                    const nextPlayersPerTeam = value === '1v1' ? 1 : 2;
+
                     setMode(value);
-                    setBluePlayerIds([]);
-                    setRedPlayerIds([]);
+                    setBluePlayerIds(createEmptySelections(nextPlayersPerTeam));
+                    setRedPlayerIds(createEmptySelections(nextPlayersPerTeam));
                     setValidationErrors([]);
                   }}
                   className={`rounded-2xl border px-4 py-4 text-sm font-semibold ${
@@ -219,32 +250,34 @@ export function NewGamePage() {
 
         {!isLoading && players.length > 0 ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            <TeamSelector
+            <TeamLineupCard
               title="Equipo Azul"
               accentClassName="border-blueTeam/30 bg-blueTeam/5"
-              players={selectablePlayers}
+              players={players}
               selectedIds={bluePlayerIds}
-              maxSelections={playersPerTeam}
-              onToggle={(playerId) => {
-                toggleSelection(
+              opposingIds={normalizedRedPlayerIds}
+              onChange={(slotIndex, playerId) => {
+                updateSelection(
+                  slotIndex,
                   playerId,
                   bluePlayerIds,
-                  redPlayerIds,
+                  normalizedRedPlayerIds,
                   setBluePlayerIds,
                 );
               }}
             />
-            <TeamSelector
+            <TeamLineupCard
               title="Equipo Rojo"
               accentClassName="border-redTeam/30 bg-redTeam/5"
-              players={selectablePlayers}
+              players={players}
               selectedIds={redPlayerIds}
-              maxSelections={playersPerTeam}
-              onToggle={(playerId) => {
-                toggleSelection(
+              opposingIds={normalizedBluePlayerIds}
+              onChange={(slotIndex, playerId) => {
+                updateSelection(
+                  slotIndex,
                   playerId,
                   redPlayerIds,
-                  bluePlayerIds,
+                  normalizedBluePlayerIds,
                   setRedPlayerIds,
                 );
               }}
