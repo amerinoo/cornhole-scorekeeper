@@ -7,7 +7,7 @@ import { usePlayers } from "../players/hooks/usePlayers";
 import { useGame } from "./hooks/useGame";
 import { useRounds } from "./hooks/useRounds";
 import { getStatusLabel } from "./components/GameSummaryCard";
-import { QRCodeCanvas } from "qrcode.react";
+import QRCode from "react-qr-code";
 
 function renderNames(
   playerIds: string[],
@@ -113,7 +113,7 @@ export function GameDisplayPage() {
           <div className="relative grid gap-2 rounded-3xl border border-slate-200 bg-white/90 px-5 py-4 text-sm shadow-sm">
             {/* QR */}
             <div className="absolute top-3 right-3 cursor-pointer hover:scale-105 transition">
-              <QRCodeCanvas value={url} size={64} />
+              <QRCode value={url} size={64} />
             </div>
 
             <p>
