@@ -11,7 +11,7 @@ type RoundsHistoryCardProps = {
   rounds: Round[];
   namesById: Map<string, string>;
   editingRoundId: string | null;
-  isEditable: boolean;
+  canEditRound: (round: Round) => boolean;
   onEdit: (round: Round) => void;
 };
 
@@ -34,7 +34,7 @@ export function RoundsHistoryCard({
   rounds,
   namesById,
   editingRoundId,
-  isEditable,
+  canEditRound,
   onEdit,
 }: RoundsHistoryCardProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -109,8 +109,11 @@ export function RoundsHistoryCard({
         </div>
       ) : (
         <div className="mt-4 divide-y divide-slate-200">
-          {sortedRounds.map((round) => (
-            <div key={round.id} className="py-3">
+          {sortedRounds.map((round) => {
+            const isRoundEditable = canEditRound(round);
+
+            return (
+              <div key={round.id} className="py-3">
               <button
                 type="button"
                 onClick={() => {
@@ -147,7 +150,7 @@ export function RoundsHistoryCard({
                         </p>
                       ) : null}
                     </div>
-                    {isEditable ? (
+                    {isRoundEditable ? (
                       <button
                         type="button"
                         onClick={() => {
@@ -237,8 +240,9 @@ export function RoundsHistoryCard({
                   </div>
                 </div>
               ) : null}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </article>

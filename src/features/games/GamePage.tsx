@@ -218,7 +218,13 @@ export function GamePage() {
   }
 
   async function handleSubmitRound() {
-    if (!game || game.status === "finished") {
+    const latestRoundId = rounds.at(-1)?.id ?? null;
+
+    if (
+      !game ||
+      (game.status === "finished" &&
+        (!editingRoundId || editingRoundId !== latestRoundId))
+    ) {
       return;
     }
 
@@ -240,7 +246,12 @@ export function GamePage() {
   }
 
   function handleEditRound(round: Round) {
-    if (!game || game.status === "finished") {
+    const latestRoundId = rounds.at(-1)?.id ?? null;
+
+    if (
+      !game ||
+      (game.status === "finished" && round.id !== latestRoundId)
+    ) {
       return;
     }
 
@@ -311,9 +322,17 @@ export function GamePage() {
       : game.winnerTeam === "red"
         ? "Gana Equipo Rojo"
         : "Sin ganador todavía";
+  const latestRoundId = rounds.at(-1)?.id ?? null;
+  const isEditingLatestRound =
+    latestRoundId !== null && editingRoundId === latestRoundId;
   const isGameEditable = game.status !== "finished";
-  const projectedBlueScore = game.blueScore + preview.blueNetScore;
-  const projectedRedScore = game.redScore + preview.redNetScore;
+  const isRoundFormVisible = isGameEditable || isEditingLatestRound;
+  const projectedBlueScore = editingRound
+    ? game.blueScore - editingRound.blueNetScore + preview.blueNetScore
+    : game.blueScore + preview.blueNetScore;
+  const projectedRedScore = editingRound
+    ? game.redScore - editingRound.redNetScore + preview.redNetScore
+    : game.redScore + preview.redNetScore;
   const activeRoundNumber = editingRound
     ? editingRound.roundNumber
     : nextRoundNumber(rounds);
@@ -425,7 +444,7 @@ export function GamePage() {
         </button>
       </section>
 
-      {isGameEditable ? (
+      {isRoundFormVisible ? (
         <RoundFormCard
           game={game}
           rounds={rounds}
@@ -446,11 +465,12 @@ export function GamePage() {
         />
       ) : (
         <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm font-medium text-slate-600">
-          La partida está finalizada. El historial queda en modo solo lectura.
+          La partida está finalizada. Solo puedes corregir la última ronda para
+          reabrirla si la puntuación final era incorrecta.
         </article>
       )}
 
-      {!isGameEditable && finishedGameStats ? (
+      {!isRoundFormVisible && finishedGameStats ? (
         <article className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-card backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -618,13 +638,15 @@ export function GamePage() {
           Cargando rondas...
         </article>
       ) : (
-        <RoundsHistoryCard
-          rounds={rounds}
-          namesById={namesById}
-          editingRoundId={editingRoundId}
-          isEditable={isGameEditable}
-          onEdit={handleEditRound}
-        />
+      <RoundsHistoryCard
+        rounds={rounds}
+        namesById={namesById}
+        editingRoundId={editingRoundId}
+        canEditRound={(round) =>
+          game.status !== "finished" || round.id === latestRoundId
+        }
+        onEdit={handleEditRound}
+      />
       )}
     </section>
   );
