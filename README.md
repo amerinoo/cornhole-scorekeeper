@@ -2,6 +2,10 @@
 
 App web para llevar puntuaciones de Cornhole en móvil y pantalla grande.
 
+## Acceso rápido
+
+App publicada: https://amerinoo.github.io/cornhole-scorekeeper/
+
 ## Stack
 
 - React
@@ -96,6 +100,7 @@ Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y fase extra:
 - Pantalla de partidas en curso para continuar una partida activa
 - Display mode de solo lectura para TV o proyector
 - Workflow de deploy a GitHub Pages con GitHub Actions
+- Soporte PWA instalable con manifest e iconos
 - Code splitting por rutas y chunks separados de producción
 - Modelos TypeScript estrictos
 - Lógica pura de puntuación y validación con tests
@@ -123,6 +128,14 @@ Antes de publicar:
 - `VITE_FIREBASE_MEASUREMENT_ID`
 
 Después, cada push a `main` desplegará la app.
+
+## PWA
+
+La app incluye `manifest.webmanifest`, iconos y `service worker` para poder instalarse en móvil o escritorio.
+
+- En navegadores compatibles se puede añadir a la pantalla de inicio o instalar como app.
+- El shell principal queda cacheado para soporte offline básico.
+- El contenido dinámico de Firestore sigue dependiendo de red cuando no exista en caché del navegador.
 
 ## Rutas profundas
 
