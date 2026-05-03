@@ -12,6 +12,7 @@ import {
 } from "../../utils/scoring";
 import { aggregateFinishedGameStats } from "../stats/aggregation";
 import { usePlayers } from "../players/hooks/usePlayers";
+import { RecentRoundsTimeline } from "./components/RecentRoundsTimeline";
 import { RoundFormCard } from "./components/RoundFormCard";
 import { RoundsHistoryCard } from "./components/RoundsHistoryCard";
 import { useGame } from "./hooks/useGame";
@@ -59,49 +60,6 @@ function InlineStat({
       <span className="font-semibold text-slate-700">{value}</span>
       {detail ? <span className="text-slate-500">{detail}</span> : null}
     </span>
-  );
-}
-
-function RecentRoundsTimeline({ rounds }: { rounds: Round[] }) {
-  const recentRounds = rounds.slice(-5);
-
-  if (recentRounds.length === 0) {
-    return (
-      <p className="text-sm font-medium text-slate-500">
-        Aún no hay rondas guardadas.
-      </p>
-    );
-  }
-
-  return (
-    <div className="flex flex-wrap items-start gap-3">
-      {recentRounds.map((round, index) => {
-        const isLatest = index === recentRounds.length - 1;
-        const netScore =
-          round.blueNetScore > 0 ? round.blueNetScore : round.redNetScore;
-        const colorClassName =
-          round.blueNetScore > 0
-            ? "bg-blueTeam text-white"
-            : round.redNetScore > 0
-              ? "bg-redTeam text-white"
-              : "bg-slate-200 text-slate-700";
-
-        return (
-          <div key={round.id} className="flex flex-col items-center gap-1">
-            <div
-              className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-black ${colorClassName} ${
-                isLatest ? "ring-4 ring-ink/10" : ""
-              }`}
-            >
-              {netScore}
-            </div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              R{round.roundNumber}
-            </span>
-          </div>
-        );
-      })}
-    </div>
   );
 }
 
@@ -407,8 +365,8 @@ export function GamePage() {
           </span>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <RecentRoundsTimeline rounds={rounds} />
+        <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <RecentRoundsTimeline rounds={rounds} className="w-full sm:flex-1" />
           <div className="flex flex-col items-start gap-2 sm:items-end">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
               Ronda {activeRoundNumber}
@@ -470,6 +428,7 @@ export function GamePage() {
       {isGameEditable ? (
         <RoundFormCard
           game={game}
+          rounds={rounds}
           namesById={namesById}
           formState={formState}
           preview={preview}

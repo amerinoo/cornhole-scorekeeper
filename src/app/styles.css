@@ -65,3 +65,12 @@ textarea {
   outline: 3px solid rgba(16, 36, 62, 0.18);
   outline-offset: 3px;
 }
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

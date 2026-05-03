@@ -1,11 +1,17 @@
 type CompactScoreboardProps = {
   blueScore: number;
   redScore: number;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  showTeamLabels?: boolean;
+  padding?: 'none' | 'md';
 };
 
 function getSizeClassName(size: CompactScoreboardProps['size']): string {
+  if (size === 'xs') {
+    return 'text-2xl sm:text-2xl';
+  }
+
   if (size === 'sm') {
     return 'text-3xl sm:text-4xl';
   }
@@ -26,30 +32,39 @@ export function CompactScoreboard({
   redScore,
   size = 'md',
   className = '',
+  showTeamLabels = true,
+  padding = 'md',
 }: CompactScoreboardProps) {
   const scoreClassName = getSizeClassName(size);
+  const gapClassName = size === 'xs' ? 'gap-2' : 'gap-3';
+  const vsClassName = size === 'xs' ? 'text-[10px]' : 'text-xs';
+  const paddingClassName = padding === 'none' ? 'p-0' : 'p-4';
 
   return (
     <div
-      className={`rounded-[1.6rem] border border-slate-200 bg-slate-50 p-4 ${className}`}
+      className={`rounded-[1.6rem] border border-slate-200 bg-slate-50 ${paddingClassName} ${className}`}
     >
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <div className={`grid grid-cols-[1fr_auto_1fr] items-center ${gapClassName}`}>
         <div className="min-w-0 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blueTeam/70">
-            Azul
-          </p>
-          <p className={`mt-1 font-black tracking-tight text-blueTeam ${scoreClassName}`}>
+          {showTeamLabels ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blueTeam/70">
+              Azul
+            </p>
+          ) : null}
+          <p className={`${showTeamLabels ? "mt-1" : ""} font-black tracking-tight text-blueTeam ${scoreClassName}`}>
             {blueScore}
           </p>
         </div>
-        <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+        <span className={`${vsClassName} font-black uppercase tracking-[0.16em] text-slate-400`}>
           VS
         </span>
         <div className="min-w-0 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-redTeam/70">
-            Rojo
-          </p>
-          <p className={`mt-1 font-black tracking-tight text-redTeam ${scoreClassName}`}>
+          {showTeamLabels ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-redTeam/70">
+              Rojo
+            </p>
+          ) : null}
+          <p className={`${showTeamLabels ? "mt-1" : ""} font-black tracking-tight text-redTeam ${scoreClassName}`}>
             {redScore}
           </p>
         </div>

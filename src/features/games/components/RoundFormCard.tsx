@@ -1,10 +1,22 @@
 import type { ReactNode } from "react";
-import type { Game, PlayerThrowInput, RoundCalculation } from "../../../models";
-import { CornholeIcon, PointsIcon, WoodieIcon } from "../../../components/icons";
+import type {
+  Game,
+  PlayerThrowInput,
+  Round,
+  RoundCalculation,
+} from "../../../models";
+import { CompactScoreboard } from "../../../components/CompactScoreboard";
+import {
+  CornholeIcon,
+  PointsIcon,
+  WoodieIcon,
+} from "../../../components/icons";
 import { getBagsPerPlayer } from "../../../utils/scoring";
+import { RecentRoundsTimeline } from "./RecentRoundsTimeline";
 
 type RoundFormCardProps = {
   game: Game;
+  rounds: Round[];
   namesById: Map<string, string>;
   formState: {
     blueThrows: PlayerThrowInput[];
@@ -182,6 +194,7 @@ function ThrowGroup({
 
 export function RoundFormCard({
   game,
+  rounds,
   namesById,
   formState,
   preview,
@@ -250,6 +263,31 @@ export function RoundFormCard({
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
           Resumen provisional
         </p>
+
+        {rounds.length > 0 ? (
+          <div className="mt-3 rounded-[1.2rem] bg-slate-50 px-3 py-2.5">
+            <div className="flex items-center gap-3">
+              <CompactScoreboard
+                blueScore={game.blueScore}
+                redScore={game.redScore}
+                size="xs"
+                showTeamLabels={false}
+                padding="none"
+                className="w-auto shrink-0 border-0 bg-transparent"
+              />
+              <div className="shrink-0 self-stretch border-l border-slate-200" />
+              <div className="min-w-0 flex-1">
+                <RecentRoundsTimeline
+                  rounds={rounds}
+                  compact
+                  showRoundLabels={true}
+                  className="w-full"
+                  autoScrollToEnd
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-3 grid grid-cols-3 items-stretch gap-3">
           <div
