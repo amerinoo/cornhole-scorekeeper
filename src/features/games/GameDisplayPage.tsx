@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { CompactScoreboard } from "../../components/CompactScoreboard";
 import { CornholeIcon, MissIcon, WoodieIcon } from "../../components/icons";
 import type { PlayerThrow, Round } from "../../models";
@@ -137,9 +137,9 @@ export function GameDisplayPage() {
 
   return (
     <main className="min-h-screen bg-court px-4 py-6 text-ink sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl flex-col gap-6 rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-card backdrop-blur sm:p-8">
+      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl flex-col gap-6 rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-card backdrop-blur sm:p-8">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
               Display mode
             </p>
@@ -307,6 +307,15 @@ export function GameDisplayPage() {
             </div>
           </article>
         </section>
+
+        <footer className="flex justify-center border-t border-slate-200/70 pt-4">
+          <Link
+            to={`/game/${game.id}`}
+            className="text-xs font-semibold text-slate-400 transition hover:text-slate-700"
+          >
+            Volver a la app
+          </Link>
+        </footer>
       </div>
     </main>
   );
