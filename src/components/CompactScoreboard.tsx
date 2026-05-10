@@ -4,6 +4,8 @@ type CompactScoreboardProps = {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showTeamLabels?: boolean;
+  blueSubtitle?: string;
+  redSubtitle?: string;
   padding?: 'none' | 'md';
 };
 
@@ -21,7 +23,7 @@ function getSizeClassName(size: CompactScoreboardProps['size']): string {
   }
 
   if (size === 'xl') {
-    return 'text-7xl sm:text-8xl lg:text-9xl';
+    return 'text-5xl sm:text-8xl lg:text-9xl';
   }
 
   return 'text-4xl sm:text-5xl';
@@ -33,6 +35,8 @@ export function CompactScoreboard({
   size = 'md',
   className = '',
   showTeamLabels = true,
+  blueSubtitle,
+  redSubtitle,
   padding = 'md',
 }: CompactScoreboardProps) {
   const scoreClassName = getSizeClassName(size);
@@ -54,6 +58,11 @@ export function CompactScoreboard({
           <p className={`${showTeamLabels ? "mt-1" : ""} font-black tracking-tight text-blueTeam ${scoreClassName}`}>
             {blueScore}
           </p>
+          {blueSubtitle ? (
+            <p className="mt-0.5 truncate text-xs font-bold leading-tight text-blueTeam/80 sm:text-sm">
+              {blueSubtitle}
+            </p>
+          ) : null}
         </div>
         <span className={`${vsClassName} font-black uppercase tracking-[0.16em] text-slate-400`}>
           VS
@@ -67,6 +76,11 @@ export function CompactScoreboard({
           <p className={`${showTeamLabels ? "mt-1" : ""} font-black tracking-tight text-redTeam ${scoreClassName}`}>
             {redScore}
           </p>
+          {redSubtitle ? (
+            <p className="mt-0.5 truncate text-xs font-bold leading-tight text-redTeam/80 sm:text-sm">
+              {redSubtitle}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
